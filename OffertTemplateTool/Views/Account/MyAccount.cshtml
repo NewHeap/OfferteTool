@@ -1,0 +1,36 @@
+﻿@using OffertTemplateTool.Models;
+@model UsersViewModel;
+@{
+    ViewData["Title"] = "MyAccount";
+    List<UsersViewModel> users = (List<UsersViewModel>)ViewData["users"];
+}
+<h1>@ViewData["Title"]</h1>
+<table>
+
+    @foreach (var item in users)
+    {
+        if (User.Identity.Name == item.Email) {
+        <tr>
+            <th>FullName:</th>
+            <td>@item.FirstName @item.Insertion @item.LastName</td>
+        </tr>
+        <tr>
+            <th>Initials:</th>
+            <td>@item.initials</td>
+        </tr>
+        <tr>
+            <th>Email:</th>
+            <td>@item.Email</td>
+        </tr>
+        <tr>
+            <th>PhoneNumber:</th>
+            <td>@item.PhoneNumber</td>
+        </tr>
+        <tr>
+            <th>Function:</th>
+            <td>@item.Function</td>
+        </tr>
+        }
+
+    }
+</table>

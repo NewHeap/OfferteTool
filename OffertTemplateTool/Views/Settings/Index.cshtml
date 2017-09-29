@@ -1,0 +1,92 @@
+﻿@using OffertTemplateTool.Models;
+@model SettingsViewModel;
+@{
+    ViewData["Title"] = "Index";
+
+    List<SettingsViewModel> query = (List<SettingsViewModel>)ViewData["settings"];
+
+}
+<h2>Index</h2>
+<div class="container">
+    <!-- Trigger the modal with a button -->
+    <button type="button" class="btn btn-info btn-sm btn-modal" data-toggle="modal" data-target="#myModal">Add Key</button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add Info</h4>
+                </div>
+                <div class="modal-body">
+                    @using (Html.BeginForm("Add", "Settings"))
+                    {
+                        <table>
+                            <tr>
+                                <th>Key:</th>
+                                <td><input asp-for="Key" /></td>
+                            </tr>
+                            <tr>
+                                <th>Value:</th>
+                                <td><input asp-for="Value" /></td>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <td> <input type="submit" class="btn btn-default" name="Save" value="Save" /></td>
+                            </tr>
+                        </table>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<table class="table table-striped">
+    <tr>
+        <th>Key:</th>
+        <th>Value:</th>
+    </tr>
+
+    @foreach (var item in query)
+    {
+        <tr>
+            <td>@item.Key</td>
+            <td>@item.Value</td>
+        </tr>
+    }
+</table>
+
+
+
+
+
+
+<script type="text/javascript">
+    // Get the modal
+    var modal = document.getElementById('modal');
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("mybtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    function openmodal() {
+        modal.style.display = "block";
+    }
+
+    function closemodal() {
+        modal.style.display = "none";
+    }
+
+</script>

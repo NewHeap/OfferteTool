@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OffertTemplateTool.DAL.Models
+namespace OffertTemplateTool.Models
 {
-    public class Users : IDb
+    public class UsersViewModel
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
-        public string FirstName { get; set; }  
+        [Required]
+        public string FirstName { get; set; }
+        [Required]
+        public string initials { get; set; }
         public string Insertion { get; set; }
+        [Required]
         public string LastName { get; set; }
-        public string Initials { get; set; }
         public string Email { get; set; }
+        [Required]
         public string Function { get; set; }
+        [Required]
         public int PhoneNumber { get; set; }
     }
 }

@@ -7,6 +7,6 @@ namespace OffertTemplateTool.DAL.Models
 {
     public interface IDb
     {
-          int Id { get; set; }
+          Guid Id { get; set; }
     }
 }

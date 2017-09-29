@@ -33,3 +33,16 @@
         display: none;
     }
 }
+
+.register-input {
+    margin: 3% !important;
+    
+}
+
+.btn-modal {
+    float: right;
+    margin: 1% !important;
+}
+
+
+

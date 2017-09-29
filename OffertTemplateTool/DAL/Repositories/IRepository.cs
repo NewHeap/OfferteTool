@@ -11,9 +11,9 @@ namespace OffertTemplateTool.DAL.Repositories
         void Add(T item);
         IQueryable<T> GetAll();
         T Find(string key);
-        bool Any(int key);
-        T Find(int key);
-        void Remove(int key);
+        bool Any(Guid key);
+        T Find(Guid key);
+        void Remove(Guid key);
         void Update(T item);
         void SaveChanges();
 
@@ -21,8 +21,8 @@ namespace OffertTemplateTool.DAL.Repositories
         Task<IQueryable<T>> GetAllAsync();
         Task<T> FindAsync(string key);
         Task<bool> AnyAsync(string key);
-        Task<T> FindAsync(int key);
-        Task RemoveAsync(int key);
+        Task<T> FindAsync(Guid key);
+        Task RemoveAsync(Guid key);
         Task UpdateAsync(T item);
         Task SaveChangesAsync();
     }

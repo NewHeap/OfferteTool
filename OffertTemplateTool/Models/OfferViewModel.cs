@@ -1,11 +1,14 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using OffertTemplateTool.DAL.Models;
 
-namespace OffertTemplateTool.DAL.Models
+
+namespace OffertTemplateTool.Models
 {
-    public class Offer : IDb
+    public class OfferViewModel
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
         public int DebtorNumber { get; set; } // voor WeFact API
         public int DocumentCode { get; set; } // ophalen vanuit WeFact

@@ -6,12 +6,25 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
+using OffertTemplateTool.DAL.Context;
+using OffertTemplateTool.DAL.Models;
+using OffertTemplateTool.DAL.Repositories;
+using OffertTemplateTool.Models;
 
 namespace OffertTemplateTool.Controllers
 {
     [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
+        private UsersRepository UserRepository { get; set; }
+
+        public AccountController(IRepository<Users> userRepository)
+        {
+            UserRepository = (UsersRepository)userRepository;
+        }
+
+
+
         [HttpGet]
         public IActionResult SignIn()
         {
@@ -47,6 +60,59 @@ namespace OffertTemplateTool.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+        public async Task<IActionResult> MyAccount()
+        {
+            var users = await UserRepository.GetAllAsync();
+            ViewData["users"] = users.Select(x => new UsersViewModel {
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Insertion = x.Insertion,
+                initials = x.Initials,
+                Email = x.Email,
+                Function = x.Function,
+                PhoneNumber = x.PhoneNumber
+            }).ToList();
+            return View();
+        }
+
+
+        
+        [HttpPost]
+        public async Task<IActionResult> Register(UsersViewModel model)
+        {
+            if (ModelState.IsValid) {
+                var query = new Users
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Insertion = model.Insertion,
+                    Initials = model.initials,
+                    Email = model.Email,
+                    Function = model.Function,
+                    PhoneNumber = model.PhoneNumber
+                };
+                await UserRepository.AddAsync(query);
+
+                return Redirect("../Home/Index");
+            } else
+            {
+                return View();
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            if (UserRepository.FindUserByEmail(User.Identity.Name) == true)
+            {
+                return Redirect("../Home/index");
+            }
+            else
+            {
+                return View();
+            }
         }
     }
 }

@@ -16,9 +16,7 @@ namespace OffertTemplateTool.DAL.Repositories
         {
             _context = context;
         }
-
-
-
+        
         public void Add(T item)
         {
             _context.Set<T>().Add(item);
@@ -31,7 +29,7 @@ namespace OffertTemplateTool.DAL.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public bool Any(int key)
+        public bool Any(Guid key)
         {
             var result = _context.Set<T>().Any(x => x.Id == key);
             return result;
@@ -48,7 +46,7 @@ namespace OffertTemplateTool.DAL.Repositories
             return _context.Set<T>().FirstOrDefault(x => x.Id.ToString().Equals(key));
         }
 
-        public T Find(int key)
+        public T Find(Guid key)
         {
             return _context.Set<T>().FirstOrDefault(x => x.Id == key);
         }
@@ -58,7 +56,7 @@ namespace OffertTemplateTool.DAL.Repositories
             return await _context.Set<T>().FirstOrDefaultAsync(x => x.Id.ToString().Equals(key));
         }
 
-        public async Task<T> FindAsync(int key)
+        public async Task<T> FindAsync(Guid key)
         {
             return await _context.Set<T>().FirstOrDefaultAsync(x => x.Id == key);
         }
@@ -73,14 +71,14 @@ namespace OffertTemplateTool.DAL.Repositories
             return _context.Set<T>();
         }
 
-        public void Remove(int key)
+        public void Remove(Guid key)
         {
             var record = Find(key);
             _context.Set<T>().Remove(record);
             SaveChanges();
         }
 
-        public async Task RemoveAsync(int key)
+        public async Task RemoveAsync(Guid key)
         {
             var record = await FindAsync(key);
             _context.Set<T>().Remove(record);
