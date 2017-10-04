@@ -1,0 +1,30 @@
+﻿@using OffertTemplateTool.Models;
+@model OfferViewModel;
+@{
+    ViewData["Title"] = "New Offerte";
+}
+
+<h2>NewOfferte</h2>
+
+@using (Html.BeginForm("NewOffer", "Offer"))
+{
+    <label>ProjectName:</label>
+    <input asp-for="ProjectName" placeholder="ProjectName"/><br />
+    <label>IndexContent:</label>
+    @Html.TextAreaFor(model => model.IndexContent, new { @class = "form-control summernote", @row = 5}) 
+    <label>ProjectRequirements:</label>
+    @Html.TextAreaFor(model => model.ProjectRequirements, new { @class = "form-control summernote", @row = 6 })
+    <label>SecondContent:</label>
+    @Html.TextAreaFor(model => model.SecondContent, new { @class = "form-control summernote", @row = 7 })
+    <input type="submit" name="Save" value="Save Offerte" />
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.summernote').summernote({
+            height: 300
+        });
+        $(".submit").click(function () {
+            var text = $("#summernote").summernote("code").text();
+        });
+    });
+</script>

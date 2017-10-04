@@ -1,9 +1,13 @@
 @using System.Security.Principal
-
+<style>
+    a {
+        margin: 0;
+    }
+</style>
 @if (User.Identity.IsAuthenticated)
 {
     <ul class="nav navbar-nav navbar-right">
-        <li class="navbar-text">Hello @User.Identity.Name!</li>
+        <a href="../account/myaccount"><li class="navbar-text">Hello @User.Identity.Name!</li></a>
         <li><a asp-area="" asp-controller="Account" asp-action="SignOut">Sign out</a></li>
     </ul>
 }

@@ -1,0 +1,30 @@
+﻿@using OffertTemplateTool.Models;
+@model OfferViewModel;
+@{
+    ViewData["Title"] = "Offers";
+    List<OfferViewModel> offertes = (List<OfferViewModel>)ViewData["offertes"];
+}
+
+<h2>Offers</h2>
+<button class="btn btn-success newoffer"><a style="text-decoration:none; color:white;" href="~/Offer/NewOffer">New Offer</a></button>
+<table class="table table-striped" >
+    <tr>
+        <th>Created At:</th>
+        <th>Created By:</th>
+        <th>Last Updated:</th>
+        <th>Updated By:</th>
+        <th></th>
+       
+    </tr>
+    @foreach (var item in offertes)
+    {
+        <tr>
+            <td>@item.CreatedAt</td>
+            <td>@item.CreatedBy.FirstName</td>
+            <td>@item.LastUpdatedAt</td>
+            <td>@item.UpdatedBy.FirstName</td>
+            <td>@Html.ActionLink("Edit", "EditOffer", "Offer", new { Id = item.Id})</td>
+        </tr>
+    }
+</table>
+

@@ -105,7 +105,7 @@ namespace OffertTemplateTool.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            if (UserRepository.FindUserByEmail(User.Identity.Name) == true)
+            if (UserRepository.AnyUserByEmail(User.Identity.Name) == true)
             {
                 return Redirect("../Home/index");
             }

@@ -1,0 +1,20 @@
+﻿@using OffertTemplateTool.Models;
+@model OfferViewModel;
+@{
+    ViewData["Title"] = "EditOfferte";
+}
+
+<h2>EditOfferte</h2>
+
+@using (Html.BeginForm("EditOfferte", "Offer"))
+{
+    <label>ProjectName:</label>
+    <input asp-for="ProjectName" placeholder="ProjectName" />
+    @Html.TextAreaFor(model => model.IndexContent, new { @class = "form-control", @row = 5, @id = "summernote" })
+    <input type="submit" name="Save" value="Save Offerte" />
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#summernote').summernote().text();
+    });
+</script>

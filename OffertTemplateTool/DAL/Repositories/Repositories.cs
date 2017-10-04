@@ -14,17 +14,24 @@ namespace OffertTemplateTool.DAL.Repositories
         {
             
         }
-        public bool FindUserByEmail(string key)
+        public bool AnyUserByEmail(string key)
         {
             var users = GetAll();
             var result = users.Any(x => x.Email == key);
             return result;
         }
 
-        public async Task<bool> FindUserByEmailAsync(string key)
+        public async Task<bool> AnyUserByEmailAsync(string key)
         {
             var users = await GetAllAsync();
             var result = users.Any(x => x.Email == key);
+            return result;
+        }
+
+        public Users FindUserByEmail(string email)
+        {
+            var users = GetAll();
+            var result = users.FirstOrDefault(x => x.Email == email);
             return result;
         }
     }

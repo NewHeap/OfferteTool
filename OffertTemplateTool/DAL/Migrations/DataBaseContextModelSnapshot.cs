@@ -37,6 +37,8 @@ namespace OffertTemplateTool.DAL.migrations
 
                     b.Property<DateTime?>("LastUpdatedAt");
 
+                    b.Property<string>("ProjectName");
+
                     b.Property<string>("ProjectRequirements");
 
                     b.Property<string>("SecondContent");

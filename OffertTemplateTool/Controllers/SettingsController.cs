@@ -41,10 +41,7 @@ namespace OffertTemplateTool.Controllers
             else
             {
                 return Redirect("../Settings");
-            }
-            
-
-           
+            }  
         }
     }
 }
