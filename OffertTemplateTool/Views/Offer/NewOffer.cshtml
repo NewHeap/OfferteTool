@@ -1,27 +1,29 @@
 ﻿@using OffertTemplateTool.Models;
 @model OfferViewModel;
+
 @{
     ViewData["Title"] = "New Offerte";
 }
 
 <h2>NewOfferte</h2>
-
+<button class="btn btn-danger cancel-button"><a href="../Offer">Cancel</a></button>
 @using (Html.BeginForm("NewOffer", "Offer"))
 {
-    <label>ProjectName:</label>
-    <input asp-for="ProjectName" placeholder="ProjectName"/><br />
+    <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
+    <label>ProjectName:</label> <br />
+    <input asp-for="ProjectName" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
     <label>IndexContent:</label>
-    @Html.TextAreaFor(model => model.IndexContent, new { @class = "form-control summernote", @row = 5}) 
-    <label>ProjectRequirements:</label>
-    @Html.TextAreaFor(model => model.ProjectRequirements, new { @class = "form-control summernote", @row = 6 })
-    <label>SecondContent:</label>
-    @Html.TextAreaFor(model => model.SecondContent, new { @class = "form-control summernote", @row = 7 })
-    <input type="submit" name="Save" value="Save Offerte" />
+    @Html.TextAreaFor(model => model.IndexContent, new { @class = "form-control summernote", @row = 5 })
+    <label>estimate:</label>
+    <a href="">New Estimate</a>
+    <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
+
+
 }
 <script type="text/javascript">
     $(document).ready(function () {
         $('.summernote').summernote({
-            height: 300
+            height: 300    
         });
         $(".submit").click(function () {
             var text = $("#summernote").summernote("code").text();

@@ -17,7 +17,7 @@ namespace OffertTemplateTool.Controllers
         private OfferRepository OfferRepository { get; set; }
         private UsersRepository UserRepository { get; set; }
 
-        public OfferController(IRepository<Offer> offerrepository, IRepository<Users> userrepository)
+        public OfferController(IRepository<Offers> offerrepository, IRepository<Users> userrepository)
         {
             OfferRepository = (OfferRepository)offerrepository;
             UserRepository = (UsersRepository)userrepository; 
@@ -76,14 +76,14 @@ namespace OffertTemplateTool.Controllers
             if (ModelState.IsValid)
             {
                 Users user = UserRepository.FindUserByEmail(User.Identity.Name);
-                var offerte = new Offer
+                var offerte = new Offers
                 {
                     IndexContent = model.IndexContent,
                     ProjectName = model.ProjectName,
                     CreatedBy = user,
                     CreatedAt = DateTime.Now,
                     LastUpdatedAt = DateTime.Now,
-                    UpdatedBy = user
+                    UpdatedBy = user,
                 };
 
                 await OfferRepository.AddAsync(offerte);
@@ -111,7 +111,12 @@ namespace OffertTemplateTool.Controllers
         public async Task<IActionResult> EditOffer(Guid Id)
         {
             var offertes = await OfferRepository.FindAsync(Id);
-            OfferViewModel offerte = new OfferViewModel { IndexContent = offertes.IndexContent, ProjectName = offertes.ProjectName};
+            OfferViewModel offerte = new OfferViewModel {
+                IndexContent = offertes.IndexContent,
+                ProjectName = offertes.ProjectName,  
+               
+
+            };
             return View(offerte);
         }
 

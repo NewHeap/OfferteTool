@@ -38,9 +38,11 @@ namespace OffertTemplateTool
             DataBaseContext.ConnectionString = Configuration.GetConnectionString("DataBaseContext");
             services.AddDbContext<DataBaseContext>();
 
-            services.AddScoped<IRepository<Offer>, OfferRepository>();
+            services.AddScoped<IRepository<Offers>, OfferRepository>();
             services.AddScoped<IRepository<Users>, UsersRepository>();
             services.AddScoped<IRepository<Settings>, SettingsRepository>();
+            services.AddScoped<IRepository<Estimates>, EstimateRepository>();
+            services.AddScoped<IRepository<EstimateLines>, EstimateLinesRepository>();
 
             services.AddMvc();
         }

@@ -6,15 +6,30 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OffertTemplateTool.Models;
+using OffertTemplateTool.DAL.Models;
+using OffertTemplateTool.DAL.Repositories;
 
 namespace OffertTemplateTool.Controllers
 {
     [Authorize]
     public class HomeController : Controller
     {
+        UsersRepository UsersRepository { get; set; }
+        public HomeController(IRepository<Users> userrepository)
+        {
+            UsersRepository = (UsersRepository)userrepository;
+        }
+
         public IActionResult Index()
         {
-            return View();
+            if (UsersRepository.AnyUserByEmail(User.Identity.Name) == true)
+            {
+                return View();
+            }
+            else
+            {
+                return Redirect("../Account/Register");
+            }
         }
 
         public IActionResult About()

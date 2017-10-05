@@ -1,0 +1,50 @@
+﻿@using OffertTemplateTool.Models;
+@model EstimateLinesViewModel;
+@{
+    ViewData["Title"] = "CreateEstimateLines";
+}
+<h2>CreateEstimateLines</h2>
+@using (Html.BeginForm("Add", "EstimateLines"))
+{
+    <div class="row">
+        <div class="col-md-2 estimatelines">
+            <label>Specification:</label>
+        </div>
+        <div class="col-md-2 estimatelines">
+            <input asp-for="Specification" placeholder="Specification"/> <br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 estimatelines">
+            <label>Hours:</label>
+        </div>
+        <div class="col-md-2 estimatelines">
+            <input asp-for="Hours" placeholder="Hours"/>    <br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 estimatelines">
+            <label>HoursCost:</label>
+        </div>
+        <div class="col-md-2 estimatelines">
+            <input asp-for="HourCost" placeholder="HoursCost"/>    <br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 estimatelines">
+            <label>TotalCost:</label>
+        </div>
+        <div class="col-md-2 estimatelines">
+            <input asp-for="TotalCost" placeholder="TotalCost"/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+
+        </div>
+        <div class="col-md-2 estimatelines">
+            <input type="submit" class="btn btn-success" name="SaveLine" value="Save" />
+        </div>
+    </div>
+
+}

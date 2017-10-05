@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using OffertTemplateTool.DAL.Context;
 using System;
 
-namespace OffertTemplateTool.DAL.migrations
+namespace OffertTemplateTool.DAL.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
     partial class DataBaseContextModelSnapshot : ModelSnapshot
@@ -20,7 +20,54 @@ namespace OffertTemplateTool.DAL.migrations
                 .HasAnnotation("ProductVersion", "2.0.0-rtm-26452")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("OffertTemplateTool.DAL.Models.Offer", b =>
+            modelBuilder.Entity("OffertTemplateTool.DAL.Models.EstimateConnects", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid?>("EstimateId");
+
+                    b.Property<Guid?>("EstimateLinesId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EstimateId");
+
+                    b.HasIndex("EstimateLinesId");
+
+                    b.ToTable("EstimateConnects");
+                });
+
+            modelBuilder.Entity("OffertTemplateTool.DAL.Models.EstimateLines", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<decimal>("HourCost");
+
+                    b.Property<double>("Hours");
+
+                    b.Property<string>("Specification")
+                        .IsRequired();
+
+                    b.Property<decimal>("TotalCost");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EstimateLines");
+                });
+
+            modelBuilder.Entity("OffertTemplateTool.DAL.Models.Estimates", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Estimates");
+                });
+
+            modelBuilder.Entity("OffertTemplateTool.DAL.Models.Offers", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
@@ -33,21 +80,21 @@ namespace OffertTemplateTool.DAL.migrations
 
                     b.Property<int>("DocumentCode");
 
+                    b.Property<Guid?>("EstimateId");
+
                     b.Property<string>("IndexContent");
 
                     b.Property<DateTime?>("LastUpdatedAt");
 
                     b.Property<string>("ProjectName");
 
-                    b.Property<string>("ProjectRequirements");
-
-                    b.Property<string>("SecondContent");
-
                     b.Property<Guid?>("UpdatedById");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("EstimateId");
 
                     b.HasIndex("UpdatedById");
 
@@ -92,11 +139,26 @@ namespace OffertTemplateTool.DAL.migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("OffertTemplateTool.DAL.Models.Offer", b =>
+            modelBuilder.Entity("OffertTemplateTool.DAL.Models.EstimateConnects", b =>
+                {
+                    b.HasOne("OffertTemplateTool.DAL.Models.Estimates", "Estimate")
+                        .WithMany("Products")
+                        .HasForeignKey("EstimateId");
+
+                    b.HasOne("OffertTemplateTool.DAL.Models.EstimateLines", "EstimateLines")
+                        .WithMany()
+                        .HasForeignKey("EstimateLinesId");
+                });
+
+            modelBuilder.Entity("OffertTemplateTool.DAL.Models.Offers", b =>
                 {
                     b.HasOne("OffertTemplateTool.DAL.Models.Users", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
+
+                    b.HasOne("OffertTemplateTool.DAL.Models.Estimates", "Estimate")
+                        .WithMany()
+                        .HasForeignKey("EstimateId");
 
                     b.HasOne("OffertTemplateTool.DAL.Models.Users", "UpdatedBy")
                         .WithMany()

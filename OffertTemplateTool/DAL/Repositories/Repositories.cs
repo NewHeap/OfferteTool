@@ -42,11 +42,27 @@ namespace OffertTemplateTool.DAL.Repositories
 
         }
     }
-    public class OfferRepository : Repository<Offer>
+    public class OfferRepository : Repository<Offers>
     {
         public OfferRepository(DataBaseContext databasecontext) : base(databasecontext)
         {
             
+        }
+    }
+
+    public class EstimateLinesRepository : Repository<EstimateLines>
+    {
+        public EstimateLinesRepository(DataBaseContext databasecontext) : base(databasecontext)
+        {
+
+        }
+    }
+
+    public class EstimateRepository : Repository<Estimates>
+    {
+        public EstimateRepository(DataBaseContext databasecontext) : base(databasecontext)
+        {
+
         }
     }
 }

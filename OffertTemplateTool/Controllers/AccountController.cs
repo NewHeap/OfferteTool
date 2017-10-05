@@ -65,7 +65,9 @@ namespace OffertTemplateTool.Controllers
         public async Task<IActionResult> MyAccount()
         {
             var users = await UserRepository.GetAllAsync();
-            ViewData["users"] = users.Select(x => new UsersViewModel {
+            var x = users.FirstOrDefault(u => u.Email == User.Identity.Name);
+            var vm = new UsersViewModel
+            {
                 FirstName = x.FirstName,
                 LastName = x.LastName,
                 Insertion = x.Insertion,
@@ -73,8 +75,8 @@ namespace OffertTemplateTool.Controllers
                 Email = x.Email,
                 Function = x.Function,
                 PhoneNumber = x.PhoneNumber
-            }).ToList();
-            return View();
+            };
+            return View(vm);
         }
 
 

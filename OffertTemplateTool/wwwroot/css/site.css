@@ -48,6 +48,28 @@
     float: right;
     margin: 1%;
 }
+.Save-offerte {
+    float: right;
+    margin: 1%;
+}
+.cancel-button{
+    margin-top: 1%;
+    float: right;
+    
+}
+.cancel-button a {
+    text-decoration: none;
+    color: white;
+}
+
+.cancel-href {
+    text-decoration: none;
+    color: white;
+}
+
+.estimatelines{
+    padding-top:1%;
+}
 
 
 

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OffertTemplateTool.DAL.Models
 {
-    public class Offer : IDb
+    public class Offers : IDb
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
@@ -15,7 +15,7 @@ namespace OffertTemplateTool.DAL.Models
         public DateTime? CreatedAt { get; set; } // Gemaakt op
         public DateTime? LastUpdatedAt { get; set; } // Elke x updaten
         public string IndexContent { get; set; } // Html text veld
-        public string SecondContent { get; set; } // Html text veld
-        public string ProjectRequirements { get; set; } // Html text veld
+        public Estimates Estimate { get; set; } // Html text veld
+
     }
 }

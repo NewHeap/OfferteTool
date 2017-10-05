@@ -14,8 +14,10 @@ namespace OffertTemplateTool.DAL.Context
         public static string ConnectionString { get; set; }
 
         public DbSet<Users> Users { get; set; }
-        public DbSet<Offer> Offer { get; set; }
+        public DbSet<Offers> Offer { get; set; }
         public DbSet<Settings> Settings { get; set; }
+        public DbSet<EstimateLines> EstimateLines { get; set; }
+        public DbSet<Estimates> Estimates { get; set; }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

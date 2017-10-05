@@ -5,16 +5,24 @@
 }
 
 <h2>EditOfferte</h2>
-
-@using (Html.BeginForm("EditOfferte", "Offer"))
+<button class="btn btn-danger cancel-button"><a href="../">Cancel</a></button>
+@using (Html.BeginForm("NewOffer", "Offer"))
 {
-    <label>ProjectName:</label>
-    <input asp-for="ProjectName" placeholder="ProjectName" />
-    @Html.TextAreaFor(model => model.IndexContent, new { @class = "form-control", @row = 5, @id = "summernote" })
-    <input type="submit" name="Save" value="Save Offerte" />
+    <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
+    <label>ProjectName:</label> <br />
+    <input asp-for="ProjectName" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
+    <label>IndexContent:</label>
+    @Html.TextAreaFor(model => model.IndexContent, new { @class = "form-control summernote", @row = 5 })
+    <label>estimate:</label>
+    @Html.TextAreaFor(model => model.Estimate, new { @class = "form-control summernote", @row = 7 })
+    <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
+
+
 }
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#summernote').summernote().text();
+        $('.summernote').summernote({
+            height: 300
+        });
     });
 </script>

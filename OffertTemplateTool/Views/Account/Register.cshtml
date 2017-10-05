@@ -26,7 +26,7 @@
         </tr>
         <tr>
             <td>Email:</td>
-            <td><input asp-for="Email" class="register-input"/></td>
+            <td><input asp-for="Email" class="register-input" value="@User.Identity.Name" readonly/></td>
         </tr>
         <tr>
             <td>Function:</td>
