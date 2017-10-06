@@ -7,26 +7,128 @@
 
 <h2>NewOfferte</h2>
 <button class="btn btn-danger cancel-button"><a href="../Offer">Cancel</a></button>
-@using (Html.BeginForm("NewOffer", "Offer"))
-{
+<!--using (Html.BeginForm("NewOffer", "Offer"))
+{-->
     <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
     <label>ProjectName:</label> <br />
-    <input asp-for="ProjectName" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
+    <input name="projectname" id="projectname" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
     <label>IndexContent:</label>
-    @Html.TextAreaFor(model => model.IndexContent, new { @class = "form-control summernote", @row = 5 })
+    <div class="summernote">Hoi</div>
     <label>estimate:</label>
-    <a href="">New Estimate</a>
+    <a class="new">New Line</a>
+    <div class="row">
+        <div class="col-md-2">
+            <label>Specification:</label>
+        </div>
+        <div class="col-md-2">
+            <label>Hours:</label>
+        </div>
+        <div class="col-md-2">
+            <label>HoursCost:</label>
+        </div>
+        <div class="col-md-2">
+            <label>TotalCost</label>
+        </div>
+    </div>
+    <div class="newline-container">
+        <div class="row new-row">
+            <div class="col-md-2">
+                <input name="EstimateLines" placeholder="Specification" />
+            </div>
+            <div class="col-md-2">
+                <input name="EstimateLines" placeholder="Hours" />
+            </div>
+            <div class="col-md-2">
+                <input name="EstimateLines" placeholder="HoursCost" />
+            </div>
+            <div class="col-md-2">
+                <input name="EstimateLines" placeholder="TotalCost" />
+            </div>
+        </div>
+    </div>
+    
+
+
+
     <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
 
 
-}
+<!--}-->
 <script type="text/javascript">
     $(document).ready(function () {
         $('.summernote').summernote({
-            height: 300    
+            height: 300
         });
         $(".submit").click(function () {
             var text = $("#summernote").summernote("code").text();
         });
     });
+
+    $(".new").click(function (e) {
+        $(".newline-container").append(
+            '<div class="row new-row"><div class="col-md-2">' +
+                '<input name="EstimateLines" placeholder="Specification" />' +
+            '</div>' +
+                '<div class="col-md-2">' +
+                    '<input name="EstimateLines" placeholder="Hours" />' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                    '<input name="EstimateLines" placeholder="HoursCost" />' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                    '<input name="EstimateLines" placeholder="TotalCost" />' +
+                '</div> ' +
+            '</div>'
+        );
+        return;
+    });
+
+    $(".Save-offerte").click(function (e) {
+
+        saveAll();
+        return;
+    });
+
+    var saveAll = function () {
+
+        var postBody = {
+            "Id": "@Model.Id",
+            "DebtorNumber": 0,
+            "DocumentCode": 0,
+            "ProjectName": $("#projectname").val(),
+            "CreatedBy": null,
+            "UpdatedBy": null,
+            "CreatedAt": "@DateTime.Now",
+            "LastUpdatedAt": "@DateTime.Now",
+            "IndexContent": null,
+            "Estimate": null,
+            "EstimateLines": [
+                {
+                    "Specification": null,
+                    "HourCost": 0.0,
+                    "Hours": 0.0,
+                    "TotalCost": 0.0
+                },
+            ]
+        };
+
+        console.log(postBody);
+
+    
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("NewOffer","Offer")',
+            data: postBody,
+            complete: function (response, status, xhr) {
+                console.log(response);
+
+            },
+            error: function (response, status, xhr) {
+                console.log(response);
+            },
+    });
+
+    }
+
 </script>
+

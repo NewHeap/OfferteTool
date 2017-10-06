@@ -70,6 +70,12 @@
 .estimatelines{
     padding-top:1%;
 }
+.new {
+    cursor: pointer;
+}
+.new-row{
+    padding-top: 1%;
+}
 
 
 

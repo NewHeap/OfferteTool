@@ -8,7 +8,7 @@ namespace OffertTemplateTool.DAL.Models
     public class Estimates : IDb
     {
         public Guid Id { get; set; }
-        public virtual ICollection<EstimateConnects> Products { get; set; }
+        public virtual ICollection<EstimateLines> Products { get; set; }
 
     }
 }

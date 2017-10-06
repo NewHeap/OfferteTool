@@ -65,4 +65,11 @@ namespace OffertTemplateTool.DAL.Repositories
 
         }
     }
+    public class EstimateConnectsRepository : Repository<EstimateConnects>
+    {
+        public EstimateConnectsRepository(DataBaseContext databasecontext) : base(databasecontext)
+        {
+
+        }
+    }
 }

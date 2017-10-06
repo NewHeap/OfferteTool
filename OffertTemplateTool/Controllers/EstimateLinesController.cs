@@ -11,11 +11,11 @@ namespace OffertTemplateTool.Controllers
 {
     public class EstimateLinesController : Controller
     {
-        EstimateLinesRepository EstimateLinesRepository { get; set; }
+       private EstimateLinesRepository EstimateLinesRepository { get; set; }
 
-        public EstimateLinesController(IRepository<EstimateLines> EstimateLinesRepository)
+        public EstimateLinesController(IRepository<EstimateLines> estimatelinesrepository)
         {
-            EstimateLinesRepository = (EstimateLinesRepository)EstimateLinesRepository;
+            EstimateLinesRepository = (EstimateLinesRepository)estimatelinesrepository;
         }
 
         public IActionResult Index()

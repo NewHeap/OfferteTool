@@ -17,16 +17,10 @@ namespace OffertTemplateTool.Controllers
             return View();
         }
 
-        [HttpPost]
-        public IActionResult CreateEstimateLines(EstimateLinesViewModel model)
+        public IActionResult Create()
         {
             return View();
         }
 
-        [HttpGet]
-        public IActionResult CreateEstimateLines()
-        {
-            return View();
-        }
     }
 }

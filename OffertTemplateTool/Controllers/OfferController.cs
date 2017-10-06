@@ -16,11 +16,19 @@ namespace OffertTemplateTool.Controllers
     {
         private OfferRepository OfferRepository { get; set; }
         private UsersRepository UserRepository { get; set; }
+        private EstimateRepository EstimateRepository { get; set; }
+        private EstimateLinesRepository EstimateLinesRepository { get; set; }
+        private EstimateConnectsRepository EstimateConnectsRepository { get; set; }
 
-        public OfferController(IRepository<Offers> offerrepository, IRepository<Users> userrepository)
+        public OfferController(IRepository<Offers> offerrepository, IRepository<Users> userrepository, IRepository<Estimates> estimaterepository ,
+            IRepository<EstimateLines> estimatlinesrepository, IRepository<EstimateConnects> estimateconnectsrepository)
         {
             OfferRepository = (OfferRepository)offerrepository;
-            UserRepository = (UsersRepository)userrepository; 
+            UserRepository = (UsersRepository)userrepository;
+            EstimateRepository = (EstimateRepository)estimaterepository;
+            EstimateLinesRepository = (EstimateLinesRepository)estimatlinesrepository;
+            EstimateConnectsRepository = (EstimateConnectsRepository)estimateconnectsrepository;
+
         }
 
         public async Task<IActionResult> Index()
@@ -76,6 +84,7 @@ namespace OffertTemplateTool.Controllers
             if (ModelState.IsValid)
             {
                 Users user = UserRepository.FindUserByEmail(User.Identity.Name);
+                
                 var offerte = new Offers
                 {
                     IndexContent = model.IndexContent,
@@ -88,6 +97,37 @@ namespace OffertTemplateTool.Controllers
 
                 await OfferRepository.AddAsync(offerte);
 
+                var est = new Estimates
+                {
+                    
+                };
+
+                foreach(var line in model.EstimateLines)
+                {
+                    var lin = new EstimateLines
+                    {
+                        HourCost = line.HourCost,
+                        Hours = line.Hours,
+                        Specification = line.Specification,
+                        TotalCost = line.TotalCost
+                    };
+
+                    var connect = new EstimateConnects
+                    {
+                        Estimate = ,
+                        EstimateLines = lin
+
+                    };
+
+                    await EstimateLinesRepository.AddAsync(lin);
+                }
+
+
+                await EstimateRepository.AddAsync(est);
+
+                offerte.Estimate = est;
+                await OfferRepository.UpdateAsync(offerte);
+
                 return Redirect(nameof(Index));
             }
             else
@@ -98,8 +138,11 @@ namespace OffertTemplateTool.Controllers
         [HttpGet]
         public IActionResult NewOffer()
         {
-            OfferViewModel model = new OfferViewModel();
-            return View();
+            var model = new OfferViewModel
+            {
+                CreatedAt = DateTime.Now,
+            };
+            return View(model);
         }
 
         [HttpPost]
