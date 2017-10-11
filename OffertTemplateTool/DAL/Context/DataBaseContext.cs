@@ -18,7 +18,9 @@ namespace OffertTemplateTool.DAL.Context
         public DbSet<Settings> Settings { get; set; }
         public DbSet<EstimateLines> EstimateLines { get; set; }
         public DbSet<Estimates> Estimates { get; set; }
-        
+        public DbSet<EstimateConnects> EstimateConnects { get; set; }
+
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(ConnectionString);

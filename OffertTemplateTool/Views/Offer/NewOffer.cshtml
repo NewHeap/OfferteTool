@@ -1,8 +1,11 @@
 ﻿@using OffertTemplateTool.Models;
-@model OfferViewModel;
+@using OffertTemplateTool.DAL.Models;
+@model OfferViewModel
 
 @{
+    
     ViewData["Title"] = "New Offerte";
+    
 }
 
 <h2>NewOfferte</h2>
@@ -11,9 +14,9 @@
 {-->
     <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
     <label>ProjectName:</label> <br />
-    <input name="projectname" id="projectname" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
+    <input name="projectname" class="projectname" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
     <label>IndexContent:</label>
-    <div class="summernote">Hoi</div>
+    <textarea class="summernote"></textarea>
     <label>estimate:</label>
     <a class="new">New Line</a>
     <div class="row">
@@ -31,20 +34,7 @@
         </div>
     </div>
     <div class="newline-container">
-        <div class="row new-row">
-            <div class="col-md-2">
-                <input name="EstimateLines" placeholder="Specification" />
-            </div>
-            <div class="col-md-2">
-                <input name="EstimateLines" placeholder="Hours" />
-            </div>
-            <div class="col-md-2">
-                <input name="EstimateLines" placeholder="HoursCost" />
-            </div>
-            <div class="col-md-2">
-                <input name="EstimateLines" placeholder="TotalCost" />
-            </div>
-        </div>
+        
     </div>
     
 
@@ -55,31 +45,34 @@
 
 <!--}-->
 <script type="text/javascript">
+    var id = 0;
+
     $(document).ready(function () {
         $('.summernote').summernote({
             height: 300
         });
-        $(".submit").click(function () {
-            var text = $("#summernote").summernote("code").text();
-        });
     });
 
     $(".new").click(function (e) {
+        
         $(".newline-container").append(
             '<div class="row new-row"><div class="col-md-2">' +
-                '<input name="EstimateLines" placeholder="Specification" />' +
+            '<input name="EstimateLines" id="Specification' + id +'" placeholder="Specification" />' +
             '</div>' +
                 '<div class="col-md-2">' +
-                    '<input name="EstimateLines" placeholder="Hours" />' +
+            '<input name="EstimateLines" id="hours' + id +'" placeholder="Hours" />' +
                 '</div>' +
                 '<div class="col-md-2">' +
-                    '<input name="EstimateLines" placeholder="HoursCost" />' +
+            '<input name="EstimateLines" id="hourscost' + id +'" placeholder="HoursCost" />' +
                 '</div>' +
-                '<div class="col-md-2">' +
-                    '<input name="EstimateLines" placeholder="TotalCost" />' +
+            '<div class="col-md-2">' +
+            '<input name="EstimateLines" id="totalcost' + id +'" placeholder="TotalCost" />' +
                 '</div> ' +
             '</div>'
         );
+        id++;
+
+        
         return;
     });
 
@@ -89,46 +82,50 @@
         return;
     });
 
+
+
     var saveAll = function () {
 
         var postBody = {
             "Id": "@Model.Id",
             "DebtorNumber": 0,
             "DocumentCode": 0,
-            "ProjectName": $("#projectname").val(),
+            "ProjectName": $(".projectname").val(),
             "CreatedBy": null,
             "UpdatedBy": null,
             "CreatedAt": "@DateTime.Now",
             "LastUpdatedAt": "@DateTime.Now",
-            "IndexContent": null,
+            "IndexContent": $(".summernote").val(),
             "Estimate": null,
             "EstimateLines": [
-                {
-                    "Specification": null,
-                    "HourCost": 0.0,
-                    "Hours": 0.0,
-                    "TotalCost": 0.0
-                },
             ]
         };
 
+        for (var i = 0; i < id; i++) {
+            postBody.EstimateLines[i] = {
+                "Specification": $("#Specification" + i).val(),
+                "HourCost": $("#hourscost" + i).val(),
+                "Hours": $("#hours" + i).val(),
+                "TotalCost": $("#totalcost" + i).val()
+            };
+        }
+      
+
         console.log(postBody);
 
-    
+
         $.ajax({
             type: "POST",
             url: '@Url.Action("NewOffer","Offer")',
             data: postBody,
             complete: function (response, status, xhr) {
-                console.log(response);
 
             },
             error: function (response, status, xhr) {
-                console.log(response);
+
             },
-    });
+        });
 
     }
-
 </script>
 

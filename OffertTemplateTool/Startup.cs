@@ -43,6 +43,7 @@ namespace OffertTemplateTool
             services.AddScoped<IRepository<Settings>, SettingsRepository>();
             services.AddScoped<IRepository<Estimates>, EstimateRepository>();
             services.AddScoped<IRepository<EstimateLines>, EstimateLinesRepository>();
+            services.AddScoped<IRepository<EstimateConnects>, EstimateConnectsRepository>();
 
             services.AddMvc();
         }

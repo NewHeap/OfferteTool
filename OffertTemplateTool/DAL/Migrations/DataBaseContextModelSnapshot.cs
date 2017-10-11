@@ -43,6 +43,8 @@ namespace OffertTemplateTool.DAL.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid?>("EstimatesId");
+
                     b.Property<decimal>("HourCost");
 
                     b.Property<double>("Hours");
@@ -53,6 +55,8 @@ namespace OffertTemplateTool.DAL.Migrations
                     b.Property<decimal>("TotalCost");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EstimatesId");
 
                     b.ToTable("EstimateLines");
                 });
@@ -142,12 +146,19 @@ namespace OffertTemplateTool.DAL.Migrations
             modelBuilder.Entity("OffertTemplateTool.DAL.Models.EstimateConnects", b =>
                 {
                     b.HasOne("OffertTemplateTool.DAL.Models.Estimates", "Estimate")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("EstimateId");
 
                     b.HasOne("OffertTemplateTool.DAL.Models.EstimateLines", "EstimateLines")
                         .WithMany()
                         .HasForeignKey("EstimateLinesId");
+                });
+
+            modelBuilder.Entity("OffertTemplateTool.DAL.Models.EstimateLines", b =>
+                {
+                    b.HasOne("OffertTemplateTool.DAL.Models.Estimates")
+                        .WithMany("Products")
+                        .HasForeignKey("EstimatesId");
                 });
 
             modelBuilder.Entity("OffertTemplateTool.DAL.Models.Offers", b =>

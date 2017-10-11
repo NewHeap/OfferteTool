@@ -81,7 +81,7 @@ namespace OffertTemplateTool.Controllers
         [HttpPost]
         public async Task<IActionResult> NewOffer(OfferViewModel model)
         {
-            if (ModelState.IsValid)
+             if (ModelState.IsValid)
             {
                 Users user = UserRepository.FindUserByEmail(User.Identity.Name);
                 
@@ -102,7 +102,9 @@ namespace OffertTemplateTool.Controllers
                     
                 };
 
-                foreach(var line in model.EstimateLines)
+                await EstimateRepository.AddAsync(est);
+
+                foreach (var line in model.EstimateLines)
                 {
                     var lin = new EstimateLines
                     {
@@ -114,41 +116,43 @@ namespace OffertTemplateTool.Controllers
 
                     var connect = new EstimateConnects
                     {
-                        Estimate = ,
+                        Estimate = est,
                         EstimateLines = lin
-
                     };
 
+                   
+
                     await EstimateLinesRepository.AddAsync(lin);
+                    await EstimateConnectsRepository.AddAsync(connect);
                 }
-
-
-                await EstimateRepository.AddAsync(est);
+                
 
                 offerte.Estimate = est;
                 await OfferRepository.UpdateAsync(offerte);
 
-                return Redirect(nameof(Index));
+                return Ok();
             }
             else
             {
-                return View();
+                return BadRequest(ModelState);
             }
         }
         [HttpGet]
         public IActionResult NewOffer()
         {
-            var model = new OfferViewModel
+
+            OfferViewModel model = new OfferViewModel
             {
-                CreatedAt = DateTime.Now,
+                
             };
+
             return View(model);
         }
 
         [HttpPost]
         public IActionResult EditOffer(OfferViewModel model)
         {
-            return View();
+            return Ok();
         }
         [HttpGet]
         public async Task<IActionResult> EditOffer(Guid Id)

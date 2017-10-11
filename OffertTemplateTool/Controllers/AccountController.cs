@@ -71,7 +71,7 @@ namespace OffertTemplateTool.Controllers
                 FirstName = x.FirstName,
                 LastName = x.LastName,
                 Insertion = x.Insertion,
-                initials = x.Initials,
+                Initials = x.Initials,
                 Email = x.Email,
                 Function = x.Function,
                 PhoneNumber = x.PhoneNumber
@@ -90,7 +90,7 @@ namespace OffertTemplateTool.Controllers
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     Insertion = model.Insertion,
-                    Initials = model.initials,
+                    Initials = model.Initials,
                     Email = model.Email,
                     Function = model.Function,
                     PhoneNumber = model.PhoneNumber

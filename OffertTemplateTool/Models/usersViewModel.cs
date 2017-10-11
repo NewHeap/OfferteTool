@@ -12,7 +12,7 @@ namespace OffertTemplateTool.Models
         [Required]
         public string FirstName { get; set; }
         [Required]
-        public string initials { get; set; }
+        public string Initials { get; set; }
         public string Insertion { get; set; }
         [Required]
         public string LastName { get; set; }
