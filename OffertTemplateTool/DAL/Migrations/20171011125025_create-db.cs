@@ -4,10 +4,25 @@ using System.Collections.Generic;
 
 namespace OffertTemplateTool.DAL.Migrations
 {
-    public partial class CreateDatabase : Migration
+    public partial class createdb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "EstimateLines",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    HourCost = table.Column<decimal>(type: "decimal(18, 2)", nullable: false),
+                    Hours = table.Column<double>(type: "float", nullable: false),
+                    Specification = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TotalCost = table.Column<decimal>(type: "decimal(18, 2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EstimateLines", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Estimates",
                 columns: table => new
@@ -51,23 +66,26 @@ namespace OffertTemplateTool.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EstimateLines",
+                name: "EstimateConnects",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EstimatesId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    HourCost = table.Column<decimal>(type: "decimal(18, 2)", nullable: false),
-                    Hours = table.Column<double>(type: "float", nullable: false),
-                    Specification = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TotalCost = table.Column<decimal>(type: "decimal(18, 2)", nullable: false)
+                    EstimateId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    EstimateLinesId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EstimateLines", x => x.Id);
+                    table.PrimaryKey("PK_EstimateConnects", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_EstimateLines_Estimates_EstimatesId",
-                        column: x => x.EstimatesId,
+                        name: "FK_EstimateConnects_Estimates_EstimateId",
+                        column: x => x.EstimateId,
                         principalTable: "Estimates",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_EstimateConnects_EstimateLines_EstimateLinesId",
+                        column: x => x.EstimateLinesId,
+                        principalTable: "EstimateLines",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -110,31 +128,6 @@ namespace OffertTemplateTool.DAL.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "EstimateConnects",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EstimateId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    EstimateLinesId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EstimateConnects", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_EstimateConnects_Estimates_EstimateId",
-                        column: x => x.EstimateId,
-                        principalTable: "Estimates",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_EstimateConnects_EstimateLines_EstimateLinesId",
-                        column: x => x.EstimateLinesId,
-                        principalTable: "EstimateLines",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_EstimateConnects_EstimateId",
                 table: "EstimateConnects",
@@ -144,11 +137,6 @@ namespace OffertTemplateTool.DAL.Migrations
                 name: "IX_EstimateConnects_EstimateLinesId",
                 table: "EstimateConnects",
                 column: "EstimateLinesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EstimateLines_EstimatesId",
-                table: "EstimateLines",
-                column: "EstimatesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Offer_CreatedById",

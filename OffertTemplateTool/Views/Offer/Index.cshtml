@@ -6,24 +6,31 @@
 }
 
 <h2>Offers</h2>
-<button class="btn btn-success newoffer"><a style="text-decoration:none; color:white;" href="~/Offer/NewOffer">New Offer</a></button>
-<table class="table table-striped" >
+<button class="btn btn-success newoffer"><a href="~/Offer/NewOffer">New Offer</a></button>
+<table class="table table-striped">
     <tr>
+        <th>ProjectName:</th>
         <th>Created At:</th>
         <th>Created By:</th>
         <th>Last Updated:</th>
         <th>Updated By:</th>
         <th></th>
-       
+        
+
     </tr>
     @foreach (var item in offertes)
     {
         <tr>
+            <td>@item.ProjectName</td>
             <td>@item.CreatedAt</td>
             <td>@item.CreatedBy.FirstName</td>
             <td>@item.LastUpdatedAt</td>
             <td>@item.UpdatedBy.FirstName</td>
-            <td>@Html.ActionLink("Edit", "EditOffer", "Offer", new { Id = item.Id})</td>
+            <td>
+                <button class="btn btn-primary">@Html.ActionLink("Edit", "EditOffer", "Offer", new { Id = item.Id })</button>
+                <button class="btn btn-success">@Html.ActionLink("Export", "ExportOffer", "Offer", new { Id = item.Id })</button>
+                <button class="btn btn-danger">@Html.ActionLink("Delete", "DeleteOffer", "offer", new { Id = item.Id})</button>
+            </td>
         </tr>
     }
 </table>

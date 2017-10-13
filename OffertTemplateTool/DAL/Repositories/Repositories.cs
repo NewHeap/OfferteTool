@@ -62,7 +62,7 @@ namespace OffertTemplateTool.DAL.Repositories
     {
         public EstimateRepository(DataBaseContext databasecontext) : base(databasecontext)
         {
-
+            
         }
     }
     public class EstimateConnectsRepository : Repository<EstimateConnects>

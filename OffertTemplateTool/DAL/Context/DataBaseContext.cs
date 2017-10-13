@@ -9,7 +9,6 @@ namespace OffertTemplateTool.DAL.Context
 {
     public class DataBaseContext : DbContext
     {
-        DbContextOptions<DataBaseContext> optie;
 
         public static string ConnectionString { get; set; }
 
@@ -20,10 +19,11 @@ namespace OffertTemplateTool.DAL.Context
         public DbSet<Estimates> Estimates { get; set; }
         public DbSet<EstimateConnects> EstimateConnects { get; set; }
 
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+
             optionsBuilder.UseSqlServer(ConnectionString);
+           
         }
 
 

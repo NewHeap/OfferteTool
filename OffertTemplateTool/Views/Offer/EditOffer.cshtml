@@ -3,20 +3,24 @@
 @model OfferViewModel
 
 @{
-
+    List<EstimateConnectViewModel> lines = (List<EstimateConnectViewModel>)ViewData["estimatelines"];
     ViewData["Title"] = "Edit Offer";
+
+    var lineid = 0;
 
 }
 
 <h2>Edit Offer</h2>
-<button class="btn btn-danger cancel-button"><a href="../Offer">Cancel</a></button>
-<!--using (Html.BeginForm("NewOffer", "Offer"))
-{-->
+<button class="btn btn-danger cancel-button"><a href="../">Cancel</a></button>
 <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
 <label>ProjectName:</label> <br />
-<input name="projectname" class="projectname" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
+<div class="row">
+    <div class="col-md-2">
+        <input asp-for="ProjectName" class="projectname form-control" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
+    </div>
+</div>
 <label>IndexContent:</label>
-<textarea class="summernote"></textarea>
+<textarea asp-for="IndexContent" class="summernote" name="IndexContent"></textarea>
 <label>estimate:</label>
 <a class="new">New Line</a>
 <div class="row">
@@ -30,20 +34,34 @@
         <label>HoursCost:</label>
     </div>
     <div class="col-md-2">
-        <label>TotalCost</label>
+        <label>TotalCost:</label>
     </div>
 </div>
 <div class="newline-container">
+    @foreach (var item in lines)
+    {
+        <div class="row new-row">
+            <div class="col-md-2">
+                <input asp-for="EstimateLines" class="form-control" id="Specification" value="@item.EstimateLines.Specification"/>
+            </div>
+            <div class="col-md-2">
+                <input asp-for="EstimateLines" class="form-control" value="@item.EstimateLines.Hours" />
+            </div>
+            <div class="col-md-2">
+                <input asp-for="EstimateLines" class="form-control" value="@item.EstimateLines.HourCost" />
+            </div>
+            <div class="col-md-2">
+                <input asp-for="EstimateLines" class="form-control" value="@item.EstimateLines.TotalCost" />
+            </div>
+        </div>
 
+    }
 </div>
-
-
-
 
 <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
 
 
-<!--}-->
+
 <script type="text/javascript">
     var id = 0;
 
@@ -71,8 +89,6 @@
             '</div>'
         );
         id++;
-
-
         return;
     });
 
@@ -81,8 +97,6 @@
         saveAll();
         return;
     });
-
-
 
     var saveAll = function () {
 
@@ -93,7 +107,7 @@
             "ProjectName": $(".projectname").val(),
             "CreatedBy": null,
             "UpdatedBy": null,
-            "CreatedAt": "@DateTime.Now",
+            "CreatedAt": null,
             "LastUpdatedAt": "@DateTime.Now",
             "IndexContent": $(".summernote").val(),
             "Estimate": null,
@@ -109,14 +123,12 @@
                 "TotalCost": $("#totalcost" + i).val()
             };
         }
-
-
+        
         console.log(postBody);
-
-
+        
         $.ajax({
             type: "POST",
-            url: '@Url.Action("NewOffer","Offer")',
+            url: '@Url.Action("EditOffer","Offer")',
             data: postBody,
             complete: function (response, status, xhr) {
 

@@ -5,7 +5,6 @@
 }
 <h1>@ViewData["Title"]</h1>
 <table>
-
     @foreach (UsersViewModel item in Model)
     {
         if (User.Identity.Name == item.Email) {
@@ -30,6 +29,5 @@
             <td>@item.Function</td>
         </tr>
         }
-
     }
 </table>

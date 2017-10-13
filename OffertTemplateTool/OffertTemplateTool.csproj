@@ -7,8 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\OfferteTemplates\dikkeboktor.docx" />
+    <Content Remove="wwwroot\OfferteTemplates\filled1.docx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />
+    <PackageReference Include="NetOffice.Word" Version="1.7.3" />
+    <PackageReference Include="sautinsoft.pdfmetamorphosis" Version="6.8.10.4" />
     <PackageReference Include="summernote" Version="1.0.3" />
   </ItemGroup>
 
@@ -22,7 +29,7 @@
     <Folder Include="wwwroot\css\" />
     <Folder Include="wwwroot\images\" />
     <Folder Include="wwwroot\js\" />
-    <Folder Include="wwwroot\OfferteTemplates\" />
+    <Folder Include="wwwroot\Exporteoffers\" />
   </ItemGroup>
 
 </Project>
