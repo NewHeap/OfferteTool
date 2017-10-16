@@ -5,8 +5,8 @@
 @{
     List<EstimateConnectViewModel> lines = (List<EstimateConnectViewModel>)ViewData["estimatelines"];
     ViewData["Title"] = "Edit Offer";
-
-    var lineid = 0;
+    var id = 0;
+    
 
 }
 
@@ -41,19 +41,23 @@
     @foreach (var item in lines)
     {
         <div class="row new-row">
-            <div class="col-md-2">
-                <input asp-for="EstimateLines" class="form-control" id="Specification" value="@item.EstimateLines.Specification"/>
+            <div class="col-md-2" style="display:none;"> 
+                <input asp-for="EstimateLines" class="form-control" id="Id_@id" value="@item.EstimateLines.Id" />
             </div>
             <div class="col-md-2">
-                <input asp-for="EstimateLines" class="form-control" value="@item.EstimateLines.Hours" />
+                <input asp-for="EstimateLines" class="form-control" id="Specification_@id" value="@item.EstimateLines.Specification"/>
             </div>
             <div class="col-md-2">
-                <input asp-for="EstimateLines" class="form-control" value="@item.EstimateLines.HourCost" />
+                <input asp-for="EstimateLines" class="form-control" id="Hours_@id" value="@item.EstimateLines.Hours" />
             </div>
             <div class="col-md-2">
-                <input asp-for="EstimateLines" class="form-control" value="@item.EstimateLines.TotalCost" />
+                <input asp-for="EstimateLines" class="form-control" id="HoursCost_@id" value="@item.EstimateLines.HourCost" />
+            </div>
+            <div class="col-md-2">
+                <input asp-for="EstimateLines" class="form-control" id="TotalCost_@id" value="@item.EstimateLines.TotalCost" />
             </div>
         </div>
+        id++;
 
     }
 </div>
@@ -75,20 +79,20 @@
 
         $(".newline-container").append(
             '<div class="row new-row"><div class="col-md-2">' +
-            '<input name="EstimateLines" id="Specification' + id +'" placeholder="Specification" />' +
+            '<input name="EstimateLines" id="Specification_' + @id +'" placeholder="Specification" />' +
             '</div>' +
                 '<div class="col-md-2">' +
-            '<input name="EstimateLines" id="hours' + id +'" placeholder="Hours" />' +
+            '<input name="EstimateLines" id="Hours_' + @id +'" placeholder="Hours" />' +
                 '</div>' +
                 '<div class="col-md-2">' +
-            '<input name="EstimateLines" id="hourscost' + id +'" placeholder="HoursCost" />' +
+            '<input name="EstimateLines" id="HoursCost_' + @id +'" placeholder="HoursCost" />' +
                 '</div>' +
-            '<div class="col-md-2">' +
-            '<input name="EstimateLines" id="totalcost' + id +'" placeholder="TotalCost" />' +
+            '<div class="col-md-2">' +  
+            '<input name="EstimateLines" id="TotalCost_' + @id +'" placeholder="TotalCost" />' +
                 '</div> ' +
             '</div>'
         );
-        id++;
+        @id+1;
         return;
     });
 
@@ -100,7 +104,7 @@
 
     var saveAll = function () {
 
-        var postBody = {
+        var postBody = { 
             "Id": "@Model.Id",
             "DebtorNumber": 0,
             "DocumentCode": 0,
@@ -110,18 +114,24 @@
             "CreatedAt": null,
             "LastUpdatedAt": "@DateTime.Now",
             "IndexContent": $(".summernote").val(),
-            "Estimate": null,
+            "Estimate": "@Model.Estimate",
             "EstimateLines": [
             ]
         };
 
-        for (var i = 0; i < id; i++) {
+        for (var i = 0; i < @id; i++) {
             postBody.EstimateLines[i] = {
-                "Specification": $("#Specification" + i).val(),
-                "HourCost": $("#hourscost" + i).val(),
-                "Hours": $("#hours" + i).val(),
-                "TotalCost": $("#totalcost" + i).val()
+                "Id": $("#Id_" + i).val(),
+                "Specification": $("#Specification_" + i).val(),
+                "HourCost": $("#HoursCost_" + i).val(),
+                "Hours": $("#Hours_" + i).val(),
+                "TotalCost": $("#TotalCost_" + i).val()
             };
+        }
+
+        var redirect = function () {
+            window.location.replace("../");
+
         }
         
         console.log(postBody);
@@ -131,7 +141,12 @@
             url: '@Url.Action("EditOffer","Offer")',
             data: postBody,
             complete: function (response, status, xhr) {
-
+                $.notify("<span class='glyphicon glyphicon-ok'></span> <p>Your offer has succesfully saved! you will " +
+                    "automatically Redirect to the overview </p > ", {
+                        type: 'success',
+                        showProgressbar: true,
+                    });
+                setInterval(redirect, 5000); 
             },
             error: function (response, status, xhr) {
 

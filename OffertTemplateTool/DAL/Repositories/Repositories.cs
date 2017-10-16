@@ -71,5 +71,12 @@ namespace OffertTemplateTool.DAL.Repositories
         {
 
         }
+
+        public List<EstimateConnects> SelectEstimateLines(Guid Id)
+        {
+            var lines = GetAll();
+            var estimatelines = lines.Where(x => x.Estimate.Id == Id).ToList();
+            return estimatelines;
+        }
     }
 }
