@@ -381,14 +381,10 @@ namespace OffertTemplateTool.Controllers
         {
             if (indexcontent == true)
             {
-                
-                List<MatchCollection> TagList = new List<MatchCollection>();
                 app.Selection.Find.Execute(find);
                 var h1tags = Regex.Matches(replace, @"<h1>(.|\n)*?</h1>");
                 var ptags = Regex.Matches(replace, @"<p>(.|\n)*?</p>");
-                TagList.Add(h1tags);
-                TagList.Add(ptags);
-
+                
                 for (int i = 0; i < h1tags.Count; i++)
                 {
                     app.Selection.Find.Execute(find);
@@ -403,7 +399,6 @@ namespace OffertTemplateTool.Controllers
                     app.Selection.TypeText(Regex.Replace(ptags[i].Value, @"<[^>]*>", ""));
                     app.Selection.InsertBreak();
                 }
-
             }
             else
             {
