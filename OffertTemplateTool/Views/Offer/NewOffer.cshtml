@@ -54,7 +54,6 @@
     });
 
     $(".new").click(function (e) {
-        
         $(".newline-container").append(
             '<div class="row new-row"><div class="col-md-2">' +
             '<input name="EstimateLines" id="Specification' + id +'" placeholder="Specification" />' +
@@ -71,8 +70,6 @@
             '</div>'
         );
         id++;
-
-        
         return;
     });
 
@@ -81,8 +78,6 @@
         saveAll();
         return;
     });
-
-
 
     var saveAll = function () {
 
@@ -110,12 +105,9 @@
         }
         var redirect = function(){
             window.location.replace("../Offer");
-      
         }
-
         console.log(postBody);
-
-
+        
         $.ajax({
             type: "POST",
             url: '@Url.Action("NewOffer","Offer")',

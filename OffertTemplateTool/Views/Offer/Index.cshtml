@@ -3,10 +3,28 @@
 @{
     ViewData["Title"] = "Offers";
     List<OfferViewModel> offertes = (List<OfferViewModel>)ViewData["offertes"];
+    int id = 0;
 }
 
 <h2>Offers</h2>
 <button class="btn btn-success newoffer"><a href="~/Offer/NewOffer">New Offer</a></button>
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Do you Like to download the file?</h4>
+            </div>
+            <div class="modal-body">
+                <button class="btn btn-success"><a id="yes" href="">Yes</a></button>
+                <button class="btn btn-success"><a id="no" href="">No</a></button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <table class="table table-striped">
     <tr>
         <th>ProjectName:</th>
@@ -15,8 +33,6 @@
         <th>Last Updated:</th>
         <th>Updated By:</th>
         <th></th>
-        
-
     </tr>
     @foreach (var item in offertes)
     {
@@ -28,10 +44,34 @@
             <td>@item.UpdatedBy.FirstName</td>
             <td>
                 <button class="btn btn-primary">@Html.ActionLink("Edit", "EditOffer", "Offer", new { Id = item.Id })</button>
-                <button class="btn btn-success">@Html.ActionLink("Export", "ExportOffer", "Offer", new { Id = item.Id })</button>
-                <button class="btn btn-danger">@Html.ActionLink("Delete", "DeleteOffer", "offer", new { Id = item.Id})</button>
+                <button id="export_@id" class="btn btn-success export" data-id="@item.Id" data-toggle="modal" data-target="#myModal">Export</button>
+                <button class="btn btn-danger">@Html.ActionLink("Delete", "DeleteOffer", "offer", new { Id = item.Id })</button>
             </td>
         </tr>
+        id++;
     }
 </table>
+
+<script>
+    var exportid = 0;
+    $(".export").click(function () {
+        for (var i = 0; i < @id; i++) {
+            if (this.id == "export_" + i) {
+                exportid = i;
+            }
+        }
+    });
+
+    $("#no").click(function () {
+        var id = $("#export_" + exportid).data("id");
+        $("#no").attr("href", "../offer/exportoffer?Id=" + id + "&Download=false");
+    });
+
+    $("#yes").click(function () {
+        var id = $("#export_" + exportid).data("id");
+        $("#yes").attr("href", "../offer/exportoffer?Id=" + id + "&Download=true");
+    });
+
+
+</script>
 

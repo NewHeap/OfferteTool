@@ -56,6 +56,11 @@ namespace OffertTemplateTool.DAL.Repositories
         {
 
         }
+        public bool AnyLineExist(Guid id)
+        {
+            var lines = GetAll();
+            return lines.Any(x => x.Id.Equals(id));
+        }
     }
 
     public class EstimateRepository : Repository<Estimates>
@@ -78,5 +83,6 @@ namespace OffertTemplateTool.DAL.Repositories
             var estimatelines = lines.Where(x => x.Estimate.Id == Id).ToList();
             return estimatelines;
         }
+
     }
 }

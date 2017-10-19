@@ -7,15 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\Exporteoffers\OfferKris.docx" />
+    <Content Remove="wwwroot\Exporteoffers\OfferKris.pdf" />
+    <Content Remove="wwwroot\Exporteoffers\Offerpoar neemn.docx" />
+    <Content Remove="wwwroot\Exporteoffers\Offerpoar neemn.pdf" />
+    <Content Remove="wwwroot\Exporteoffers\Offerpoarneemn.docx" />
+    <Content Remove="wwwroot\Exporteoffers\Offerpoarneemn.pdf" />
     <Content Remove="wwwroot\OfferteTemplates\dikkeboktor.docx" />
     <Content Remove="wwwroot\OfferteTemplates\filled1.docx" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.7.2" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />
     <PackageReference Include="NetOffice.Word" Version="1.7.3" />
     <PackageReference Include="sautinsoft.pdfmetamorphosis" Version="6.8.10.4" />
+    <PackageReference Include="Spire.Doc" Version="6.0.21" />
     <PackageReference Include="summernote" Version="1.0.3" />
   </ItemGroup>
 

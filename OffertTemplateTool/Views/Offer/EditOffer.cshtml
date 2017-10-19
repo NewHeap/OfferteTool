@@ -6,6 +6,7 @@
     List<EstimateConnectViewModel> lines = (List<EstimateConnectViewModel>)ViewData["estimatelines"];
     ViewData["Title"] = "Edit Offer";
     var id = 0;
+    var newid = Guid.NewGuid();
     
 
 }
@@ -67,7 +68,7 @@
 
 
 <script type="text/javascript">
-    var id = 0;
+    var id = @id;
 
     $(document).ready(function () {
         $('.summernote').summernote({
@@ -76,23 +77,22 @@
     });
 
     $(".new").click(function (e) {
-
         $(".newline-container").append(
             '<div class="row new-row"><div class="col-md-2">' +
-            '<input name="EstimateLines" id="Specification_' + @id +'" placeholder="Specification" />' +
+            '<input name="EstimateLines" id="Specification_' + id +'" placeholder="Specification" />' +
             '</div>' +
                 '<div class="col-md-2">' +
-            '<input name="EstimateLines" id="Hours_' + @id +'" placeholder="Hours" />' +
+            '<input name="EstimateLines" id="Hours_' + id +'" placeholder="Hours" />' +
                 '</div>' +
                 '<div class="col-md-2">' +
-            '<input name="EstimateLines" id="HoursCost_' + @id +'" placeholder="HoursCost" />' +
+            '<input name="EstimateLines" id="HoursCost_' + id +'" placeholder="HoursCost" />' +
                 '</div>' +
             '<div class="col-md-2">' +  
-            '<input name="EstimateLines" id="TotalCost_' + @id +'" placeholder="TotalCost" />' +
+            '<input name="EstimateLines" id="TotalCost_' + id +'" placeholder="TotalCost" />' +
                 '</div> ' +
             '</div>'
         );
-        @id+1;
+        id++;
         return;
     });
 
@@ -119,7 +119,7 @@
             ]
         };
 
-        for (var i = 0; i < @id; i++) {
+        for (var i = 0; i < id; i++) {
             postBody.EstimateLines[i] = {
                 "Id": $("#Id_" + i).val(),
                 "Specification": $("#Specification_" + i).val(),
