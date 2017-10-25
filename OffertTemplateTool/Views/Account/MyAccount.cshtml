@@ -1,33 +1,52 @@
 ﻿@using OffertTemplateTool.Models;
-@model List<UsersViewModel>
+@model UsersViewModel;
 @{
     ViewData["Title"] = "MyAccount";
 }
 <h1>@ViewData["Title"]</h1>
-<table>
-    @foreach (UsersViewModel item in Model)
-    {
-        if (User.Identity.Name == item.Email) {
-        <tr>
-            <th>FullName:</th>
-            <td>@item.FirstName @item.Insertion @item.LastName</td>
-        </tr>
-        <tr>
-            <th>Initials:</th>
-            <td>@item.Initials</td>
-        </tr>
-        <tr>
-            <th>Email:</th>
-            <td>@item.Email</td>
-        </tr>
-        <tr>
-            <th>PhoneNumber:</th>
-            <td>@item.PhoneNumber</td>
-        </tr>
-        <tr>
-            <th>Function:</th>
-            <td>@item.Function</td>
-        </tr>
-        }
-    }
-</table>
+<div class="row">
+    <div class="col-md-2">
+        <label><b>FullName:</b></label>
+    </div>
+    <div class="col-md-2">
+        <input asp-for="FirstName" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <input asp-for="Insertion" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <input asp-for="LastName" class="form-control" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <label><b>Initials:</b></label>
+    </div>
+    <div class="col-md-2">
+        <input asp-for="Initials" class="form-control" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <label><b>Email:</b></label>
+    </div>
+    <div class="col-md-2">
+        <input asp-for="Email" class="form-control" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <lable><b>PhoneNumber:</b></lable>
+    </div>
+    <div class="col-md-2">
+        <input asp-for="PhoneNumber" class="form-control" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <label><b>Function:</b></label>
+    </div>
+    <div class="col-md-2">
+        <input asp-for="Function" class="form-control" />
+    </div>
+</div>

@@ -3,18 +3,15 @@
 @model OfferViewModel
 
 @{
-    
     ViewData["Title"] = "New Offerte";
-    
 }
-
 <h2>NewOfferte</h2>
 <button class="btn btn-danger cancel-button"><a href="../Offer">Cancel</a></button>
 <!--using (Html.BeginForm("NewOffer", "Offer"))
 {-->
     <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
     <label>ProjectName:</label> <br />
-    <input name="projectname" class="projectname" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
+    <input name="projectname" class="projectname form-control" placeholder="ProjectName" style="margin-bottom: 1%; width:15%;" /><br />
     <label>IndexContent:</label>
     <textarea class="summernote"></textarea>
     <label>estimate:</label>
@@ -37,13 +34,8 @@
         
     </div>
     
-
-
-
     <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
 
-
-<!--}-->
 <script type="text/javascript">
     var id = 0;
 
@@ -56,16 +48,16 @@
     $(".new").click(function (e) {
         $(".newline-container").append(
             '<div class="row new-row"><div class="col-md-2">' +
-            '<input name="EstimateLines" id="Specification' + id +'" placeholder="Specification" />' +
+            '<input name="EstimateLines" class="form-control" id="Specification' + id +'" placeholder="Specification" />' +
             '</div>' +
                 '<div class="col-md-2">' +
-            '<input name="EstimateLines" id="hours' + id +'" placeholder="Hours" />' +
+            '<input name="EstimateLines" class="form-control" id="hours' + id +'" placeholder="Hours" />' +
                 '</div>' +
                 '<div class="col-md-2">' +
-            '<input name="EstimateLines" id="hourscost' + id +'" placeholder="HoursCost" />' +
+            '<input name="EstimateLines" class="form-control" id="hourscost' + id +'" placeholder="HoursCost" />' +
                 '</div>' +
             '<div class="col-md-2">' +
-            '<input name="EstimateLines" id="totalcost' + id +'" placeholder="TotalCost" />' +
+            '<input name="EstimateLines" class="form-control" id="totalcost' + id +'" placeholder="TotalCost" />' +
                 '</div>' +
             '</div>'
         );
@@ -107,7 +99,7 @@
             window.location.replace("../Offer");
         }
         console.log(postBody);
-        
+
         $.ajax({
             type: "POST",
             url: '@Url.Action("NewOffer","Offer")',
@@ -123,7 +115,7 @@
             error: function (response, status, xhr) {
                 $.notify("<span class='glyphicon glyphicon-ok'></span> <p>There went something Wrong!! Try it again</p > ", {
                         type: 'warning',
-                        
+
                     });
             },
         });
