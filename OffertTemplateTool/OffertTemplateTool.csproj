@@ -18,13 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DocumentFormat.OpenXml" Version="2.7.2" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />
     <PackageReference Include="NetOffice.Word" Version="1.7.3" />
     <PackageReference Include="RestSharp" Version="105.2.3" />
-    <PackageReference Include="sautinsoft.pdfmetamorphosis" Version="6.8.10.4" />
-    <PackageReference Include="Spire.Doc" Version="6.0.21" />
     <PackageReference Include="summernote" Version="1.0.3" />
   </ItemGroup>
 
@@ -36,8 +33,6 @@
   <ItemGroup>
     <Folder Include="Views\Shared\" />
     <Folder Include="wwwroot\css\" />
-    <Folder Include="wwwroot\images\" />
-    <Folder Include="wwwroot\js\" />
     <Folder Include="wwwroot\Exporteoffers\" />
   </ItemGroup>
 

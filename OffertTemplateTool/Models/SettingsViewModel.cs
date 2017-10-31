@@ -13,7 +13,7 @@ namespace OffertTemplateTool.Models
         [Required]
         public string Key { get; set; }
 
-        [StringLength(60, MinimumLength = 3)]
+        [StringLength(60, MinimumLength = 1)]
         [Required]
         public string Value { get; set; }
     }

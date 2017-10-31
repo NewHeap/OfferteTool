@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OffertTemplateTool.Connectors;
 
 namespace OffertTemplateTool
 {
@@ -44,6 +45,7 @@ namespace OffertTemplateTool
             services.AddScoped<IRepository<Estimates>, EstimateRepository>();
             services.AddScoped<IRepository<EstimateLines>, EstimateLinesRepository>();
             services.AddScoped<IRepository<EstimateConnects>, EstimateConnectsRepository>();
+            services.AddScoped<IConnector, WeFactConnector>();
 
             services.AddMvc();
         }

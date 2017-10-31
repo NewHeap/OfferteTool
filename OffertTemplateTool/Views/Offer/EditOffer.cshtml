@@ -7,7 +7,8 @@
     ViewData["Title"] = "Edit Offer";
     var id = 0;
     var newid = Guid.NewGuid();
-    
+    List<WeFactDebtorsModel> debtor = (List<WeFactDebtorsModel>)ViewData["debtors"];
+
 
 }
 
@@ -20,6 +21,15 @@
         <input asp-for="ProjectName" class="projectname form-control" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
     </div>
 </div>
+<label>Company:</label>
+<select class="form-control company" asp-for="DebtorNumber" style="width:15%;">
+    @foreach (var item in debtor)
+    {
+        <option value="@item.DebtorCode">@item.CompanyName</option>
+    }
+</select>
+<br />
+
 <label>IndexContent:</label>
 <textarea asp-for="IndexContent" class="summernote" name="IndexContent"></textarea>
 <label>estimate:</label>
@@ -59,14 +69,13 @@
             </div>
         </div>
         id++;
-
     }
 </div>
 
 <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
 
 
-
+<script type="text/javascript" src="~/js/ErrorMessages.js"></script>
 <script type="text/javascript">
     var id = @id;
 
@@ -149,7 +158,7 @@
                 setInterval(redirect, 5000); 
             },
             error: function (response, status, xhr) {
-
+                errormessages(response.repsponsetext, id);
             },
         });
 

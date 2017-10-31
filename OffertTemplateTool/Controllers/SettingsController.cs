@@ -20,8 +20,8 @@ namespace OffertTemplateTool.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var settings= await SettingsRepository.GetAllAsync();
-            var result = settings.Select(x => new SettingsViewModel { Key = x.Key, Value = x.Value}).ToList();
+            var settings = await SettingsRepository.GetAllAsync();
+            var result = settings.Select(x => new SettingsViewModel { Key = x.Key, Value = x.Value, Id = x.Id}).ToList();
             ViewData["settings"] = result;
             return View();
         }
@@ -42,6 +42,16 @@ namespace OffertTemplateTool.Controllers
             {
                 return Redirect("../Settings");
             }  
+        }
+
+        public IActionResult Edit()
+        {
+            return View();
+        }
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await SettingsRepository.RemoveAsync(id);
+            return Redirect("../");
         }
     }
 }

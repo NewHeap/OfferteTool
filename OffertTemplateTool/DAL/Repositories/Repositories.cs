@@ -41,6 +41,19 @@ namespace OffertTemplateTool.DAL.Repositories
         {
 
         }
+        public Settings getBTW()
+        {
+            var settings = GetAll();
+            try
+            {
+                Settings btw = settings.FirstOrDefault(x => x.Key == "btw");
+                return btw;
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
     public class OfferRepository : Repository<Offers>
     {

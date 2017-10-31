@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using NetOffice.WordApi;
 using NetOffice.WordApi.Enums;
 using System.Text.RegularExpressions;
+using OffertTemplateTool.Connectors;
 using System.Reflection;
 
 namespace OffertTemplateTool.Controllers
@@ -25,18 +26,24 @@ namespace OffertTemplateTool.Controllers
         private EstimateRepository EstimateRepository { get; set; }
         private EstimateLinesRepository EstimateLinesRepository { get; set; }
         private EstimateConnectsRepository EstimateConnectsRepository { get; set; }
+        private SettingsRepository SettingsRepository { get; set; }
+        internal WeFactConnector wefactconnector { get; }
         Application app;
         Document doc;
         string projectname;
 
         public OfferController(IRepository<Offers> offerrepository, IRepository<Users> userrepository, IRepository<Estimates> estimaterepository,
-            IRepository<EstimateLines> estimatlinesrepository, IRepository<EstimateConnects> estimateconnectsrepository)
+            IRepository<EstimateLines> estimatlinesrepository, IRepository<EstimateConnects> estimateconnectsrepository,
+            IRepository<Settings> settingsrepository,
+            IConnector wefactConnector)
         {
             OfferRepository = (OfferRepository)offerrepository;
             UserRepository = (UsersRepository)userrepository;
             EstimateRepository = (EstimateRepository)estimaterepository;
             EstimateLinesRepository = (EstimateLinesRepository)estimatlinesrepository;
             EstimateConnectsRepository = (EstimateConnectsRepository)estimateconnectsrepository;
+            SettingsRepository = (SettingsRepository)settingsrepository;
+            wefactconnector = (WeFactConnector)wefactConnector;
             app = new Application();
         }
 
@@ -94,11 +101,13 @@ namespace OffertTemplateTool.Controllers
             if (ModelState.IsValid)
             {
                 Users user = UserRepository.FindUserByEmail(User.Identity.Name);
+                var customer = wefactconnector.GetCustomerInfo(model.DebtorNumber);
 
                 var offerte = new Offers
                 {
                     IndexContent = model.IndexContent,
                     ProjectName = model.ProjectName,
+                    DebtorNumber = model.DebtorNumber,
                     CreatedBy = user,
                     CreatedAt = DateTime.Now,
                     LastUpdatedAt = DateTime.Now,
@@ -151,6 +160,8 @@ namespace OffertTemplateTool.Controllers
             {
 
             };
+            var debtorinfo = wefactconnector.GetCustomers();
+            ViewData["debtors"] = debtorinfo;
 
             return View(model);
         }
@@ -158,7 +169,11 @@ namespace OffertTemplateTool.Controllers
         [HttpPost]
         public async Task<IActionResult> EditOffer(OfferViewModel model)
         {
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+            {
+                ModelState.AddModelError("offermodel", "Form is not valid!");
+                return View(model);
+            } 
             try
             {
                 Offers offer = await OfferRepository.FindAsync(model.Id);
@@ -266,13 +281,17 @@ namespace OffertTemplateTool.Controllers
                 EstimateLines = x.EstimateLines
             }).ToList();
 
-            OfferViewModel offerte = new OfferViewModel
+            OfferViewModel offerte = new OfferViewModel //get selected offer info
             {
                 IndexContent = offer.IndexContent,
                 ProjectName = offer.ProjectName,
                 Estimate = offer.Estimate.Id,
-                Id = offer.Id
+                Id = offer.Id,
+                DebtorNumber = offer.DebtorNumber
             };
+
+            var debtorinfo = wefactconnector.GetCustomers(); //get debtors off wefact
+            ViewData["debtors"] = debtorinfo;
             return View(offerte);
         }
 
@@ -298,23 +317,37 @@ namespace OffertTemplateTool.Controllers
             var offer = offers.FirstOrDefault(x => x.Id.Equals(Id));
             var estimate = await EstimateRepository.FindAsync(offer.Estimate.Id.ToString());
             var lines = Connect.Where(x => x.Estimate.Id == estimate.Id).ToList();
+            var debtor = wefactconnector.GetCustomerInfo(offer.DebtorNumber);
             projectname = offer.ProjectName;
 
             DateTime lastupdate = DateTime.Parse(offer.LastUpdatedAt.ToString());
-
 
             doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/OfferteTemplates/NewHeapTemplate.docx"));
             //app.Visible = false;
             doc.Activate();
 
+            FindAndReplace("<CustomerCompany>", debtor.CompanyName, false);
+            FindAndReplace("<CustomerName>", debtor.Initials + ". " + debtor.SurName, false);
+            FindAndReplace("<CustomerStreet>", debtor.Address, false);
+            FindAndReplace("<CustomerZipCode>", debtor.ZipCode + " " + debtor.City, false);
+            FindAndReplace("<Customercountry>", debtor.Country, false);
+            //projectinfo
             FindAndReplace("<ProjectName>", offer.ProjectName, false);
             FindAndReplace("<LastUpdated>", lastupdate.ToShortDateString().ToString(), false);
             FindAndReplace("<CreatedBy>", offer.CreatedBy.FirstName, false);
-            FindAndReplace("<IndexContent>", offer.IndexContent, true);
+            FindAndReplace("<ProjectName>", offer.ProjectName, false);
+            //customer info relatie
+            FindAndReplace("<CustomerCompany>", debtor.CompanyName, false);
+            FindAndReplace("<CustomerName>", debtor.Initials + ". " + debtor.SurName, false);
+            FindAndReplace("<CustomerStreet>", debtor.Address, false);
+            FindAndReplace("<CustomerZipCode>", debtor.ZipCode + " " + debtor.City, false);
+            FindAndReplace("<EmailCustomer>", debtor.EmailAddress, false);
 
+            FindAndReplace("<IndexContent>", offer.IndexContent, true);
+            
             app.Selection.Find.Execute("<Estimate>");
             app.Selection.InsertBreak(WdBreakType.wdLineBreak);
-            Table table = doc.Tables.Add(app.Selection.Range, lines.Count+2, 4);
+            Table table = doc.Tables.Add(app.Selection.Range, lines.Count+1, 4);
             table.Style = WdBuiltinStyle.wdStyleTableLightShading;
 
             table.Cell(rows, 1).Select();
@@ -343,12 +376,38 @@ namespace OffertTemplateTool.Controllers
                 app.Selection.TypeText(item.EstimateLines.Hours.ToString());
 
                 table.Cell(rows, 4).Select();
-                app.Selection.TypeText("\u20AC" + item.EstimateLines.TotalCost.ToString());
+                app.Selection.TypeText("\u20AC" + item.EstimateLines.TotalCost.ToString("#,##0.00"));
 
                 totalcost = totalcost + item.EstimateLines.TotalCost;
             }
-            table.Cell(rows+1, 4).Select();
-            app.Selection.TypeText("excl. btw \u20AC" + totalcost);
+            var btwpercentage = SettingsRepository.getBTW();
+
+            //totalcost table
+            app.Selection.Find.Execute("<TotalsCosts>");
+            Table tableTotal = doc.Tables.Add(app.Selection.Range, 3, 2);
+            tableTotal.Style = WdBuiltinStyle.wdStyleTableLightShading;
+            tableTotal.PreferredWidth = 140;
+            tableTotal.Rows.Alignment = WdRowAlignment.wdAlignRowRight;
+
+            tableTotal.Cell(1, 1).Select();
+            app.Selection.TypeText("excl. btw");
+
+            tableTotal.Cell(1, 2).Select();
+            app.Selection.TypeText("\u20AC" + totalcost.ToString("#,##0.00"));
+
+            tableTotal.Cell(2, 1).Select();
+            app.Selection.TypeText("btw " + btwpercentage.Value + "%");
+            var btwdecimal = decimal.Parse(btwpercentage.Value);
+
+            decimal btw = totalcost / 100 * btwdecimal;
+            tableTotal.Cell(2, 2).Select();
+            app.Selection.TypeText("\u20AC" + btw.ToString("#,##0.00"));
+
+            tableTotal.Cell(3, 1).Select();
+            app.Selection.TypeText("Subtotaal");
+
+            tableTotal.Cell(3, 2).Select();
+            app.Selection.TypeText("\u20AC" + (totalcost + btw).ToString("#,##0.00"));
 
             doc.SaveAs(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".docx"));
             doc.SaveAs2(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".pdf"), WdSaveFormat.wdFormatPDF);
@@ -364,6 +423,7 @@ namespace OffertTemplateTool.Controllers
                 byte[] arr = System.IO.File.ReadAllBytes(@"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".pdf");
                 Response.Headers.Add("Content-Length", arr.Length.ToString());
                 await Response.Body.WriteAsync(arr, 0, arr.Length);
+                Response.Clear();
             }
             return Redirect("../offer");
         }
@@ -398,6 +458,7 @@ namespace OffertTemplateTool.Controllers
             return Redirect("../");
         }
 
+        //find and replace function 
         private void FindAndReplace(string find, string replace, bool indexcontent)
         {
             if (indexcontent == true)
@@ -408,8 +469,9 @@ namespace OffertTemplateTool.Controllers
                 var characters = "";
 
                 app.Selection.Find.Execute("<Index>");
-                
-                for (int i = 0; i < h1tags.Count; i++)
+
+                //Index
+                for (int i = 0; i < h1tags.Count; i++)  
                 {
                     app.Selection.Font.Name = "Courier new";
                     int h1tagslength = Regex.Replace(h1tags[i].Value, @"<[^>]*>", "").Length;
@@ -424,8 +486,9 @@ namespace OffertTemplateTool.Controllers
                     app.Selection.InsertBreak(WdBreakType.wdLineBreak);
                     characters = "";
                 }
-                
-                for (int i = 0; i < h1tags.Count; i++)
+
+                //Content
+                for (int i = 0; i < h1tags.Count; i++) 
                 {
                     app.Selection.Font.Name = "Calibri";
                     app.Selection.Find.Execute(find);
@@ -445,9 +508,8 @@ namespace OffertTemplateTool.Controllers
                 doc.Close();
 
                 doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + projectname + ".docx"));
-
                 
-                foreach (var item in pagenumbers)
+                foreach (var item in pagenumbers) // pagenumber for the index
                 {
                     app.Selection.Find.Execute("<PageNumber>");
                     app.Selection.TypeText(item);

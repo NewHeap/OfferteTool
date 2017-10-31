@@ -9,7 +9,7 @@
 <h2>Index</h2>
 <div class="container">
     <!-- Trigger the modal with a button -->
-    <button type="button" class="btn btn-info btn-sm btn-modal" data-toggle="modal" data-target="#myModal">Add Key</button>
+    <button type="button" class="btn btn-success btn-modal" data-toggle="modal" data-target="#myModal">Add Key</button>
 
     <!-- Modal -->
     <div class="modal fade" id="myModal" role="dialog">
@@ -25,11 +25,11 @@
                         <table>
                             <tr>
                                 <th>Key:</th>
-                                <td><input asp-for="Key" /></td>
+                                <td><input asp-for="Key" class="key form-control" /></td>
                             </tr>
                             <tr>
                                 <th>Value:</th>
-                                <td><input asp-for="Value" /></td>
+                                <td><input asp-for="Value" class="value form-control" /></td>
                             </tr>
                             <tr>
                                 <th></th>
@@ -47,14 +47,11 @@
 </div>
 
 
-
-
-
-
 <table class="table table-striped">
     <tr>
         <th>Key:</th>
         <th>Value:</th>
+        <th></th>
     </tr>
 
     @foreach (var item in query)
@@ -62,14 +59,13 @@
         <tr>
             <td>@item.Key</td>
             <td>@item.Value</td>
+            <td>
+                <button class="btn btn-primary btn-modal edit" id="edit" data-toggle="modal" data-target="#myModal" style="margin-top:0px !important;">Edit</button>
+                <button class="btn btn-danger" style="float:right;">@Html.ActionLink("Delete", "Delete", "Settings", new { id = item.Id})</button>
+            </td>
         </tr>
     }
 </table>
-
-
-
-
-
 
 <script type="text/javascript">
     // Get the modal
@@ -88,5 +84,13 @@
     function closemodal() {
         modal.style.display = "none";
     }
+
+    $(document).load(function () {
+        $("#edit").click(function () {
+            console.log("edit button clicked!");
+            $(".key").val($(".edit").data("key"));
+            $(".value").val($(".edit").data("value"));
+        });
+    });
 
 </script>

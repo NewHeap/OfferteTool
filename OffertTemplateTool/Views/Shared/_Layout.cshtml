@@ -61,6 +61,7 @@
                     <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
                     <li><a asp-area="" asp-controller="Offer" asp-action="Index">Offertes</a></li>
+                    <li><a asp-area="" asp-controller="WeFact" asp-action="Index">Debtors</a></li>
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
             </div>
@@ -77,3 +78,9 @@
     @RenderSection("Scripts", required: false)
 </body>
 </html>
+<script>
+    $(".dropdown-toggle").click(function () { 
+        $('.dropdown-toggle').dropdown();
+    });
+   
+</script>

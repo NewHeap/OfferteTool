@@ -8,7 +8,7 @@ namespace OffertTemplateTool.DAL.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
         public string ProjectName { get; set; }
-        public int DebtorNumber { get; set; } // voor WeFact API
+        public string DebtorNumber { get; set; } // voor WeFact API
         public int DocumentCode { get; set; } // ophalen vanuit WeFact
         public virtual Users CreatedBy { get; set; } // Welke user maakt 't aan
         public virtual Users UpdatedBy { get; set; } // Laatst geedit door?                         

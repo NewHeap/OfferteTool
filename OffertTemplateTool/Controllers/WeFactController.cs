@@ -5,31 +5,24 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RestSharp;
 using Newtonsoft.Json;
+using OffertTemplateTool.Connectors;
+using OffertTemplateTool.Models;
 
 namespace OffertTemplateTool.Controllers
 {
-    public class WeFactController : Controller
+    public class WeFactController : Controller 
     {
-        string baseurl = "http://localhost/wefact/Pro";
+        internal WeFactConnector WeFactConnector { get; }
+        public WeFactController(IConnector wefactConnector)
+        {
+            WeFactConnector = (WeFactConnector)wefactConnector;
+        }
+
         public IActionResult Index()
         {
-            var client = new RestClient();
-            client.BaseUrl = new System.Uri(baseurl);
+            var contactList = WeFactConnector.GetCustomers();
 
-            var request = new RestRequest();
-            request.Resource = "api/debtor/debtor.list.php";
-            request.RequestFormat = DataFormat.Json;
-
-            IRestResponse response = client.Execute(request);
-            var test = response.Headers;
-            var wefactinfo = response.Content;
-            var jsoninfo = JsonConvert.DeserializeObject(wefactinfo);
-            
-            foreach (object item in jsoninfo)
-            {
-
-            }
-            return View();
+            return View(contactList);
         }
     }
 }
