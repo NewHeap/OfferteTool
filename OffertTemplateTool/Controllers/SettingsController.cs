@@ -6,9 +6,11 @@ using OffertTemplateTool.Models;
 using OffertTemplateTool.DAL.Models;
 using OffertTemplateTool.DAL.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OffertTemplateTool.Controllers
 {
+    [Authorize]
     public class SettingsController : Controller
     {
         private SettingsRepository SettingsRepository { get; set; }
@@ -44,14 +46,23 @@ namespace OffertTemplateTool.Controllers
             }  
         }
 
-        public IActionResult Edit()
+        public async Task<IActionResult> Edit(SettingsViewModel model)
         {
-            return View();
+            var setting = await SettingsRepository.FindAsync(model.Id);
+            setting.Key = model.Key;
+            setting.Value = model.Value;
+            await SettingsRepository.SaveChangesAsync();
+            return Redirect("../");
         }
         public async Task<IActionResult> Delete(Guid id)
         {
             await SettingsRepository.RemoveAsync(id);
             return Redirect("../");
+        }
+
+        public async Task<Settings> getSetting(Guid id)
+        {
+            return await SettingsRepository.FindAsync(id);
         }
     }
 }

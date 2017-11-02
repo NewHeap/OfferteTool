@@ -6,6 +6,10 @@
     <WebProject_DirectoryAccessLevelKey>0</WebProject_DirectoryAccessLevelKey>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Remove="wwwroot\Exporteoffers\OfferKris.docx" />
     <Content Remove="wwwroot\Exporteoffers\OfferKris.pdf" />

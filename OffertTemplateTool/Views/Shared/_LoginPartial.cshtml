@@ -16,4 +16,12 @@ else
     <ul class="nav navbar-nav navbar-right">
         <li><a asp-area="" asp-controller="Account" asp-action="Signin">Sign in</a></li>
     </ul>
+    <script>
+        var id = 1;
+        if (id == 0) {
+            id++
+            window.location.replace("../account/accessdenied");
+            
+        }
+    </script>
 }

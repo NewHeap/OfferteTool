@@ -7,9 +7,11 @@ using RestSharp;
 using Newtonsoft.Json;
 using OffertTemplateTool.Connectors;
 using OffertTemplateTool.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OffertTemplateTool.Controllers
 {
+    [Authorize]
     public class WeFactController : Controller 
     {
         internal WeFactConnector WeFactConnector { get; }

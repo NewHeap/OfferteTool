@@ -16,9 +16,13 @@ using NetOffice.WordApi.Enums;
 using System.Text.RegularExpressions;
 using OffertTemplateTool.Connectors;
 using System.Reflection;
+using Microsoft.AspNetCore.Authorization;
+using System.Diagnostics;
+using System.Text;
 
 namespace OffertTemplateTool.Controllers
 {
+    [Authorize]
     public class OfferController : Controller
     {
         private OfferRepository OfferRepository { get; set; }
@@ -173,7 +177,7 @@ namespace OffertTemplateTool.Controllers
             {
                 ModelState.AddModelError("offermodel", "Form is not valid!");
                 return View(model);
-            } 
+            }
             try
             {
                 Offers offer = await OfferRepository.FindAsync(model.Id);
@@ -344,10 +348,10 @@ namespace OffertTemplateTool.Controllers
             FindAndReplace("<EmailCustomer>", debtor.EmailAddress, false);
 
             FindAndReplace("<IndexContent>", offer.IndexContent, true);
-            
+
             app.Selection.Find.Execute("<Estimate>");
             app.Selection.InsertBreak(WdBreakType.wdLineBreak);
-            Table table = doc.Tables.Add(app.Selection.Range, lines.Count+1, 4);
+            Table table = doc.Tables.Add(app.Selection.Range, lines.Count + 1, 4);
             table.Style = WdBuiltinStyle.wdStyleTableLightShading;
 
             table.Cell(rows, 1).Select();
@@ -365,10 +369,10 @@ namespace OffertTemplateTool.Controllers
             foreach (var item in lines)
             {
                 rows++;
-                
+
                 table.Cell(rows, 1).Select();
                 app.Selection.TypeText(item.EstimateLines.Specification);
-                
+
                 table.Cell(rows, 2).Select();
                 app.Selection.TypeText("\u20AC" + item.EstimateLines.HourCost.ToString());
 
@@ -454,7 +458,7 @@ namespace OffertTemplateTool.Controllers
 
             await OfferRepository.RemoveAsync(Id);
             await EstimateRepository.RemoveAsync(offer.Estimate.Id);
-            
+
             return Redirect("../");
         }
 
@@ -471,7 +475,7 @@ namespace OffertTemplateTool.Controllers
                 app.Selection.Find.Execute("<Index>");
 
                 //Index
-                for (int i = 0; i < h1tags.Count; i++)  
+                for (int i = 0; i < h1tags.Count; i++)
                 {
                     app.Selection.Font.Name = "Courier new";
                     int h1tagslength = Regex.Replace(h1tags[i].Value, @"<[^>]*>", "").Length;
@@ -488,12 +492,12 @@ namespace OffertTemplateTool.Controllers
                 }
 
                 //Content
-                for (int i = 0; i < h1tags.Count; i++) 
+                for (int i = 0; i < h1tags.Count; i++)
                 {
                     app.Selection.Font.Name = "Calibri";
                     app.Selection.Find.Execute(find);
                     app.Selection.InsertBreak();
-                    
+
                     app.Selection.Font.Color = WdColor.wdColorRed;
                     ContentStyle(20, 1);
                     app.Selection.TypeText(Regex.Replace(h1tags[i].Value, @"<[^>]*>", ""));
@@ -508,12 +512,12 @@ namespace OffertTemplateTool.Controllers
                 doc.Close();
 
                 doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + projectname + ".docx"));
-                
+
                 foreach (var item in pagenumbers) // pagenumber for the index
                 {
                     app.Selection.Find.Execute("<PageNumber>");
                     app.Selection.TypeText(item);
-                } 
+                }
             }
             else
             {
