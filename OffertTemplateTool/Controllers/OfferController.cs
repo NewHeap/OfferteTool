@@ -327,7 +327,7 @@ namespace OffertTemplateTool.Controllers
             DateTime lastupdate = DateTime.Parse(offer.LastUpdatedAt.ToString());
 
             doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/OfferteTemplates/NewHeapTemplate.docx"));
-            //app.Visible = false;
+            app.Visible = false;
             doc.Activate();
 
             FindAndReplace("<CustomerCompany>", debtor.CompanyName, false);
@@ -347,8 +347,7 @@ namespace OffertTemplateTool.Controllers
             FindAndReplace("<CustomerZipCode>", debtor.ZipCode + " " + debtor.City, false);
             FindAndReplace("<EmailCustomer>", debtor.EmailAddress, false);
 
-            FindAndReplace("<IndexContent>", offer.IndexContent, true);
-
+            //Estimate table
             app.Selection.Find.Execute("<Estimate>");
             app.Selection.InsertBreak(WdBreakType.wdLineBreak);
             Table table = doc.Tables.Add(app.Selection.Range, lines.Count + 1, 4);
@@ -412,8 +411,13 @@ namespace OffertTemplateTool.Controllers
 
             tableTotal.Cell(3, 2).Select();
             app.Selection.TypeText("\u20AC" + (totalcost + btw).ToString("#,##0.00"));
+            doc.SaveAs2(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".docx"));
+            doc.Close();
 
-            doc.SaveAs(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".docx"));
+            doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".docx"));
+            FindAndReplace("<Content>", offer.IndexContent, true);
+
+            doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".html"));
             doc.SaveAs2(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".pdf"), WdSaveFormat.wdFormatPDF);
             doc.Close();
             app.Quit();
@@ -473,8 +477,6 @@ namespace OffertTemplateTool.Controllers
                 var characters = "";
 
                 app.Selection.Find.Execute("<Index>");
-
-                //Index
                 for (int i = 0; i < h1tags.Count; i++)
                 {
                     app.Selection.Font.Name = "Courier new";
@@ -491,33 +493,30 @@ namespace OffertTemplateTool.Controllers
                     characters = "";
                 }
 
-                //Content
                 for (int i = 0; i < h1tags.Count; i++)
                 {
                     app.Selection.Font.Name = "Calibri";
                     app.Selection.Find.Execute(find);
-                    app.Selection.InsertBreak();
 
-                    app.Selection.Font.Color = WdColor.wdColorRed;
-                    ContentStyle(20, 1);
-                    app.Selection.TypeText(Regex.Replace(h1tags[i].Value, @"<[^>]*>", ""));
+                    
+                    app.Selection.TypeText(h1tags[i].Value);
                     app.Selection.InsertBreak(WdBreakType.wdLineBreak);
-                    app.Selection.Font.Color = WdColor.wdColorBlack;
-                    ContentStyle(11, 0);
-                    app.Selection.TypeText(Regex.Replace(ptags[i].Value, @"<[^>]*>", ""));
+
+                    app.Selection.TypeText(ptags[i].Value);
                     pagenumbers.Add(app.Selection.Information(WdInformation.wdActiveEndAdjustedPageNumber).ToString());
+                    if (i != h1tags.Count-1)
+                    {
+                        app.Selection.InsertBreak();
+                    }
+                    
                 }
 
-                doc.SaveAs(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + projectname + ".docx"));
+                doc.SaveAs(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + projectname + ".html"), fileFormat: WdSaveFormat.wdFormatHTML);
                 doc.Close();
 
-                doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + projectname + ".docx"));
-
-                foreach (var item in pagenumbers) // pagenumber for the index
-                {
-                    app.Selection.Find.Execute("<PageNumber>");
-                    app.Selection.TypeText(item);
-                }
+                
+                HtmlConverter(@"wwwroot/Exporteoffers/Offer" + projectname + ".html");
+                doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + projectname + ".html"));
             }
             else
             {
@@ -530,6 +529,30 @@ namespace OffertTemplateTool.Controllers
         {
             app.Selection.Font.Size = fontsize;
             app.Selection.Font.Bold = fontbold;
+        }
+
+        private void HtmlConverter(string FilePath)
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            string[] lines = System.IO.File.ReadAllLines(FilePath, Encoding.GetEncoding(1252));
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].Contains("&lt;"))
+                {
+                    lines[i] = lines[i].Replace("&lt;", "<");
+                }
+                if (lines[i].Contains("&gt;"))
+                {
+                    lines[i] = lines[i].Replace("&gt;", ">");
+                }
+                if (lines[i].Contains("<h1>"))
+                {
+                    lines[i] = lines[i].Replace("<h1>", "<h1 style='margin:0; color:red; font-size: 20px;'>");
+                }
+            }
+
+            System.IO.File.WriteAllLines(FilePath, lines, Encoding.GetEncoding(1252));
         }
     }
 }

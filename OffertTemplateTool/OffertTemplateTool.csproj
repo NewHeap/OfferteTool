@@ -27,6 +27,7 @@
     <PackageReference Include="NetOffice.Word" Version="1.7.3" />
     <PackageReference Include="RestSharp" Version="105.2.3" />
     <PackageReference Include="summernote" Version="1.0.3" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>
