@@ -1,69 +1,72 @@
 ﻿@using OffertTemplateTool.Models;
 @model SettingsViewModel;
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Settings";
 
     List<SettingsViewModel> query = (List<SettingsViewModel>)ViewData["settings"];
     int id = 0;
 }
-<h2>Index</h2>
-<div class="container">
-    <!-- Trigger the modal with a button -->
-    <button type="button" class="btn btn-success btn-modal" data-toggle="modal" data-target="#myModal">Add Key</button>
-
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" role="dialog">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Add Info</h4>
-                </div>
-                <div class="modal-body">
-                        <table>
-                            <tr>
-                                <th>Key:</th>
-                                <td><input asp-for="Key" class="key form-control" /></td>
-                            </tr>
-                            <tr>
-                                <th>Value:</th>
-                                <td><input asp-for="Value" class="value form-control" /></td>
-                            </tr>
-                            <tr>
-                                <th></th>
-                                <td> <input type="submit" id="save" class="btn btn-default save save_add" name="Save" value="Save" /></td>
-                            </tr>
-                        </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Info</h4>
+            </div>
+            <div class="modal-body">
+                <table>
+                    <tr>
+                        <th>Key:</th>
+                        <td><input asp-for="Key" class="key form-control" /></td>
+                    </tr>
+                    <tr>
+                        <th>Value:</th>
+                        <td><input asp-for="Value" class="value form-control" /></td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td> <input type="submit" id="save" class="btn btn-default save save_add" name="Save" value="Save" /></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="col-md-12">
+        <h2>@ViewData["Title"]</h2>
+        <p>This is the Settings page</p>
+        <hr />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <button type="button" class="btn btn-success btn-modal" data-toggle="modal" data-target="#myModal">Add Key</button>
+        <table class="table table-striped">
+            <tr>
+                <th>Key:</th>
+                <th>Value:</th>
+                <th></th>
+            </tr>
 
-
-<table class="table table-striped">
-    <tr>
-        <th>Key:</th>
-        <th>Value:</th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in query)
-    {
-        <tr>
-            <td>@item.Key</td>
-            <td>@item.Value</td>
-            <td>
-                <button id="edit_@id" class="btn btn-primary btn-modal edit" data-id="@item.Id" data-toggle="modal" data-target="#myModal" style="margin-top:0px !important;">Edit</button>
-                <button class="btn btn-danger" style="float:right;">@Html.ActionLink("Delete", "Delete", "Settings", new { id = item.Id})</button>
-            </td>
-        </tr>
-        id++;
-    }
-</table>
+            @foreach (var item in query)
+            {
+                <tr>
+                    <td>@item.Key</td>
+                    <td>@item.Value</td>
+                    <td>
+                        <button id="edit_@id" class="btn btn-primary btn-modal edit" data-id="@item.Id" data-toggle="modal" data-target="#myModal" style="margin-top:0px !important;">Edit</button>
+                        <button class="btn btn-danger" style="float:right;">@Html.ActionLink("Delete", "Delete", "Settings", new { id = item.Id })</button>
+                    </td>
+                </tr>
+                id++;
+            }
+        </table>
+    </div>
+</div>
 
 <script type="text/javascript">
 

@@ -20,7 +20,7 @@ namespace OffertTemplateTool.Controllers
             SettingsRepository = (SettingsRepository)settingsrepository;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Keywords()
         {
             var settings = await SettingsRepository.GetAllAsync();
             var result = settings.Select(x => new SettingsViewModel { Key = x.Key, Value = x.Value, Id = x.Id}).ToList();
@@ -59,6 +59,12 @@ namespace OffertTemplateTool.Controllers
             await SettingsRepository.RemoveAsync(id);
             return Redirect("../");
         }
+
+        public IActionResult PlaceHolders()
+        {
+            return View();
+        }
+
 
         public async Task<Settings> getSetting(Guid id)
         {

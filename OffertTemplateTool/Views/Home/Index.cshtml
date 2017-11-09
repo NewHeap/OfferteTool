@@ -1,8 +1,117 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
-
-    string hoi = "Kris";
-
-    
+    int templatenumber = 0;
+    List<string> files = (List<string>)ViewData["templates"];
 }
-@hoi[0].ToString()
+<div class="row">
+    <div class="col-md-12">
+        <h1>DashBoard</h1>
+        <hr />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Open Offers</h3>
+                <hr />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <tr>
+                        <th>nr</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th>1</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th>2</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Exported Offers</h3>
+                <hr />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <tr>
+                        <th>nr</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th>1</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th>2</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Templates</h3>
+                <hr />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    @foreach (var item in files)
+                    {
+                        templatenumber++;
+                        <tr>
+                            <th>@templatenumber</th>
+                            <td>@item.ToString()</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Title</h3>
+                <hr />
+            </div>
+        </div>
+        <div class="row">
+            Description.....
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Title</h3>
+                <hr />
+            </div>
+        </div>
+        <div class="row">
+            Description.....
+        </div>
+    </div>
+</div>

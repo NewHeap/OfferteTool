@@ -157,6 +157,7 @@ namespace OffertTemplateTool.Controllers
                 return BadRequest(ModelState);
             }
         }
+
         [HttpGet]
         public IActionResult NewOffer()
         {
@@ -492,31 +493,16 @@ namespace OffertTemplateTool.Controllers
                     app.Selection.InsertBreak(WdBreakType.wdLineBreak);
                     characters = "";
                 }
-
-                for (int i = 0; i < h1tags.Count; i++)
-                {
-                    app.Selection.Font.Name = "Calibri";
-                    app.Selection.Find.Execute(find);
-
-                    
-                    app.Selection.TypeText(h1tags[i].Value);
-                    app.Selection.InsertBreak(WdBreakType.wdLineBreak);
-
-                    app.Selection.TypeText(ptags[i].Value);
-                    pagenumbers.Add(app.Selection.Information(WdInformation.wdActiveEndAdjustedPageNumber).ToString());
-                    if (i != h1tags.Count-1)
-                    {
-                        app.Selection.InsertBreak();
-                    }
-                    
-                }
-
+                var pagebreak = "\f";
+                app.Selection.Font.Name = "Calibri";
+                app.Selection.Find.Execute(find);
+                replace = replace.Replace("<h1>", pagebreak + "<h1>");
+                app.Selection.TypeText(replace);
+                
                 doc.SaveAs(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + projectname + ".html"), fileFormat: WdSaveFormat.wdFormatHTML);
                 doc.Close();
-
                 
                 HtmlConverter(@"wwwroot/Exporteoffers/Offer" + projectname + ".html");
-                doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + projectname + ".html"));
             }
             else
             {
@@ -548,7 +534,19 @@ namespace OffertTemplateTool.Controllers
                 }
                 if (lines[i].Contains("<h1>"))
                 {
-                    lines[i] = lines[i].Replace("<h1>", "<h1 style='margin:0; color:red; font-size: 20px;'>");
+                    lines[i] = lines[i].Replace("<h1>", "<h1 style='top-margin:0cm; color:rgb(232, 79, 29); font-size: 20pt;'>");
+                }
+                if (lines[i].Contains("<h2>"))
+                {
+                    lines[i] = lines[i].Replace("<h2>", "<h2 style='top-margin:0cm; color:rgb(232, 79, 29); font-size: 15pt;'>");
+                }
+                if (lines[i].Contains("Begroting"))
+                {
+                    lines[i] = lines[i].Replace("Begroting", "\f Begroting");
+                }
+                if (lines[i].Contains("&amp;"))
+                {
+                    lines[i] = lines[i].Replace("&amp;", "&");
                 }
             }
 

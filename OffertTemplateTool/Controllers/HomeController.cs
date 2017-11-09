@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,8 +23,22 @@ namespace OffertTemplateTool.Controllers
 
         public IActionResult Index()
         {
+            List<string> templates = new List<string>();
             if (UsersRepository.AnyUserByEmail(User.Identity.Name) == true)
             {
+                var files = Directory.GetFiles(@"wwwroot/OfferteTemplates/")
+                    .Select(Path.GetFileName)
+                    .ToArray();
+                foreach (var item in files)
+                {
+                    var file = item.Replace(".docx", "");
+                    if (file[0].ToString() != "~" && file[1].ToString() != "$")
+                    {
+                        templates.Add(file);
+                    }
+                   
+                }
+                ViewData["templates"] = templates;
                 return View();
             }
             else

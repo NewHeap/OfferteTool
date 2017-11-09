@@ -6,47 +6,53 @@
     ViewData["Title"] = "New Offerte";
     List<WeFactDebtorsModel> debtor = (List<WeFactDebtorsModel>)ViewData["debtors"];
 }
-<h2>NewOfferte</h2>
-<button class="btn btn-danger cancel-button"><a href="../Offer">Cancel</a></button>
-
-<input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
-<label>ProjectName:</label> <br />
-<span class="error-projectname text-danger"></span>
-<input name="projectname" class="projectname form-control" placeholder="ProjectName" style="margin-bottom: 1%; width:15%;" /><br />
-<label>Company:</label>
-<select class="form-control company" asp-for="DebtorNumber" style="width:15%;">
-    @foreach (var item in debtor)
-    {
-        <option value="@item.DebtorCode">@item.CompanyName</option>
-    }
-</select>
-<br />
-
-<label>IndexContent:</label>
-<textarea class="summernote"></textarea>
-<label>estimate:</label>
-<a class="new">New Line</a>
 <div class="row">
-    <div class="col-md-2">
-        <label>Specification:</label>
-    </div>
-    <div class="col-md-2">
-        <label>Hours:</label>
-    </div>
-    <div class="col-md-2">
-        <label>HoursCost:</label>
-    </div>
-    <div class="col-md-2">
-        <label>TotalCost:</label>
-    </div>
-</div>
-<div class="newline-container">
-
+    <h1>NewOfferte</h1>
+    <hr />
 </div>
 
+<div class="row">
+    <div class="col-md-9" style="border-right:1px solid #eee;">
+        <button class="btn btn-danger cancel-button"><a href="../Offer">Cancel</a></button>
 
+        <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
+        <label>ProjectName:</label> <br />
+        <span class="error-projectname text-danger"></span>
+        <input name="projectname" class="projectname form-control" placeholder="ProjectName" style="margin-bottom: 1%; width:15%;" /><br />
 
-<input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
+        <label>Company:</label>
+        <select class="form-control company" asp-for="DebtorNumber" style="width:15%;">
+            @foreach (var item in debtor)
+            {
+                <option value="@item.DebtorCode">@item.CompanyName</option>
+            }
+        </select>
+        <br />
+
+        <label>IndexContent:</label>
+<textarea class="summernote"></textarea>
+        <label>estimate:</label>
+        <a class="new">New Line</a>
+        <div class="row">
+            <div class="col-md-2">
+                <label>Specification:</label>
+            </div>
+            <div class="col-md-2">
+                <label>Hours:</label>
+            </div>
+            <div class="col-md-2">
+                <label>HoursCost:</label>
+            </div>
+            <div class="col-md-2">
+                <label>TotalCost:</label>
+            </div>
+        </div>
+        <div class="newline-container">
+
+        </div>
+        <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
+    </div>
+</div>
 <script type="text/javascript" src="~/js/ErrorMessages.js"></script>
 <script type="text/javascript">
     var id = 0;

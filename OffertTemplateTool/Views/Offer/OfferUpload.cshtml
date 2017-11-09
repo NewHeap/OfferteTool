@@ -2,12 +2,19 @@
 @{
     ViewData["Title"] = "OfferteUpload";
 }
+<div class="row">
+    <div class="col-md-12">
+        <h1>OfferteUpload</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <form asp-controller="Offer" asp-action="OfferUpload" method="post"
+              enctype="multipart/form-data">
 
-<h2>OfferteUpload</h2>
+            <input type="file" name="file" accept=".doc, .docx" />
+            <button type="submit" class="upload">Upload File</button>
+        </form>
+    </div>
+</div>
 
-<form asp-controller="Offer" asp-action="OfferUpload" method="post"
-      enctype="multipart/form-data">
-
-    <input type="file" name="file" accept=".doc, .docx" />
-    <button type="submit" class="upload">Upload File</button>
-</form>

@@ -3,43 +3,51 @@
 @{
 
 }
-<h1>Register</h1>
+<div class="row">
+    <div class="col-md-12">
+        <h1>Register</h1>
+        <hr />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        @using (Html.BeginForm("Register", "Account"))
+        {
+            <table>
+                <tr>
+                    <td>FirstName:</td>
+                    <td><input asp-for="FirstName" class="register-input" /></td>
+                </tr>
+                <tr>
+                    <td>Insertion:</td>
+                    <td><input asp-for="Insertion" class="register-input" /></td>
+                </tr>
+                <tr>
+                    <td>LastName:</td>
+                    <td><input asp-for="LastName" class="register-input" /></td>
+                </tr>
+                <tr>
+                    <td>Initials:</td>
+                    <td><input asp-for="Initials" class="register-input" /></td>
+                </tr>
+                <tr>
+                    <td>Email:</td>
+                    <td><input asp-for="Email" class="register-input" value="@User.Identity.Name" readonly /></td>
+                </tr>
+                <tr>
+                    <td>Function:</td>
+                    <td><input asp-for="Function" class="register-input" /></td>
+                </tr>
+                <tr>
+                    <td>PhoneNumber:</td>
+                    <td><input asp-for="PhoneNumber" class="register-input" /></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="submit" name="Register" value="Register" class="register-input" /></td>
+                </tr>
+            </table>
 
-@using (Html.BeginForm("Register", "Account"))
-{
-    <table>
-        <tr>
-            <td>FirstName:</td>
-            <td><input asp-for="FirstName" class="register-input"/></td>
-        </tr>
-        <tr>
-            <td>Insertion:</td>
-            <td><input asp-for="Insertion" class="register-input"/></td>
-        </tr>
-        <tr>
-            <td>LastName:</td>
-            <td><input asp-for="LastName" class="register-input"/></td>
-        </tr>
-        <tr>
-            <td>Initials:</td>
-            <td><input asp-for="Initials" class="register-input"/></td>
-        </tr>
-        <tr>
-            <td>Email:</td>
-            <td><input asp-for="Email" class="register-input" value="@User.Identity.Name" readonly/></td>
-        </tr>
-        <tr>
-            <td>Function:</td>
-            <td><input asp-for="Function" class="register-input"/></td>
-        </tr>
-        <tr>
-            <td>PhoneNumber:</td>
-            <td><input asp-for="PhoneNumber" class="register-input"/></td>
-        </tr>
-        <tr>
-            <td></td>
-            <td><input type="submit" name="Register" value="Register" class="register-input"/></td>
-        </tr>
-    </table>
-
-}
+        }
+    </div>
+</div>

@@ -11,70 +11,77 @@
 
 
 }
-
-<h2>Edit Offer</h2>
-<button class="btn btn-danger cancel-button"><a href="../">Cancel</a></button>
-<input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
-<label>ProjectName:</label> <br />
 <div class="row">
-    <div class="col-md-2">
-        <input asp-for="ProjectName" class="projectname form-control" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
-    </div>
+    <h1>Edit Offer</h1>
+    <hr />
 </div>
-<label>Company:</label>
-<select class="form-control company" asp-for="DebtorNumber" style="width:15%;">
-    @foreach (var item in debtor)
-    {
-        <option value="@item.DebtorCode">@item.CompanyName</option>
-    }
-</select>
-<br />
-
-<label>IndexContent:</label>
-<textarea asp-for="IndexContent" class="summernote" name="IndexContent"></textarea>
-<label>estimate:</label>
-<a class="new">New Line</a>
 <div class="row">
-    <div class="col-md-2">
-        <label>Specification:</label>
-    </div>
-    <div class="col-md-2">
-        <label>Hours:</label>
-    </div>
-    <div class="col-md-2">
-        <label>HoursCost:</label>
-    </div>
-    <div class="col-md-2">
-        <label>TotalCost:</label>
-    </div>
-</div>
-<div class="newline-container">
-    @foreach (var item in lines)
-    {
-        <div class="row new-row">
-            <div class="col-md-2" style="display:none;"> 
-                <input asp-for="EstimateLines" class="form-control" id="Id_@id" value="@item.EstimateLines.Id" />
-            </div>
+    <div class="col-md-9">
+        <button class="btn btn-danger cancel-button"><a href="../">Cancel</a></button>
+        <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
+        <label>ProjectName:</label> <br />
+        <div class="row">
             <div class="col-md-2">
-                <input asp-for="EstimateLines" class="form-control" id="Specification_@id" value="@item.EstimateLines.Specification"/>
-            </div>
-            <div class="col-md-2">
-                <input asp-for="EstimateLines" class="form-control" id="Hours_@id" value="@item.EstimateLines.Hours" />
-            </div>
-            <div class="col-md-2">
-                <input asp-for="EstimateLines" class="form-control" id="HoursCost_@id" value="@item.EstimateLines.HourCost" />
-            </div>
-            <div class="col-md-2">
-                <input asp-for="EstimateLines" class="form-control" id="TotalCost_@id" value="@item.EstimateLines.TotalCost" />
+                <input asp-for="ProjectName" class="projectname form-control" placeholder="ProjectName" style="margin-bottom: 1%;" /><br />
             </div>
         </div>
-        id++;
-    }
+        <label>Company:</label>
+        <select class="form-control company" asp-for="DebtorNumber" style="width:15%;">
+            @foreach (var item in debtor)
+            {
+                <option value="@item.DebtorCode">@item.CompanyName</option>
+            }
+        </select>
+        <br />
+
+        <label>IndexContent:</label>
+<textarea asp-for="IndexContent" class="summernote" name="IndexContent"></textarea>
+        <label>estimate:</label>
+        <a class="new">New Line</a>
+        <div class="row">
+            <div class="col-md-2">
+                <label>Specification:</label>
+            </div>
+            <div class="col-md-2">
+                <label>Hours:</label>
+            </div>
+            <div class="col-md-2">
+                <label>HoursCost:</label>
+            </div>
+            <div class="col-md-2">
+                <label>TotalCost:</label>
+            </div>
+        </div>
+        <div class="newline-container">
+            @foreach (var item in lines)
+            {
+                <div class="row new-row">
+                    <div class="col-md-2" style="display:none;">
+                        <input asp-for="EstimateLines" class="form-control" id="Id_@id" value="@item.EstimateLines.Id" />
+                    </div>
+                    <div class="col-md-2">
+                        <input asp-for="EstimateLines" class="form-control" id="Specification_@id" value="@item.EstimateLines.Specification" />
+                    </div>
+                    <div class="col-md-2">
+                        <input asp-for="EstimateLines" class="form-control" id="Hours_@id" value="@item.EstimateLines.Hours" />
+                    </div>
+                    <div class="col-md-2">
+                        <input asp-for="EstimateLines" class="form-control" id="HoursCost_@id" value="@item.EstimateLines.HourCost" />
+                    </div>
+                    <div class="col-md-2">
+                        <input asp-for="EstimateLines" class="form-control" id="TotalCost_@id" value="@item.EstimateLines.TotalCost" />
+                    </div>
+                </div>
+                id++;
+            }
+        </div>
+
+        <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
+    </div>
+    <div class="col-md-3">
+
+    </div>
 </div>
-
-<input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
-
-
 <script type="text/javascript" src="~/js/ErrorMessages.js"></script>
 <script type="text/javascript">
     var id = @id;
@@ -115,7 +122,7 @@
 
         var postBody = { 
             "Id": "@Model.Id",
-            "DebtorNumber": 0,
+            "DebtorNumber": $(".company").val(),
             "DocumentCode": 0,
             "ProjectName": $(".projectname").val(),
             "CreatedBy": null,
