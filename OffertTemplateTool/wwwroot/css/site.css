@@ -2,16 +2,19 @@
     padding-top: 50px;
     padding-bottom: 20px;
     background-color: #F3F3F3;
-    margin:0;
+    margin: 0;
 }
-.content{
-    width:100%;
+
+.content {
+    width: 100%;
 }
-.content-block{
-    background-color:white;
+
+.content-block {
+    background-color: white;
     border-radius: 4px;
     padding: 1%;
 }
+
 .content-index {
     margin: 1%;
 }
@@ -53,7 +56,6 @@
 
 .register-input {
     margin: 3% !important;
-    
 }
 
 .btn-modal {
@@ -61,67 +63,85 @@
     margin: 1% !important;
 }
 
-.newoffer{
+.newoffer {
     float: right;
     margin: 1%;
 }
+
 .Save-offerte {
     float: right;
     margin: 1%;
 }
-.cancel-button{
+
+.cancel-button {
     margin-top: 1%;
     float: right;
-    
 }
-.cancel-button a {
-    text-decoration: none;
-    color: white;
-}
+
+    .cancel-button a {
+        text-decoration: none;
+        color: white;
+    }
 
 .cancel-href {
     text-decoration: none;
     color: white;
 }
 
-.estimatelines{
-    padding-top:1%;
+.estimatelines {
+    padding-top: 1%;
 }
+
 .new {
     cursor: pointer;
 }
-.new-row{
+
+.new-row {
     padding-top: 1%;
 }
-.btn a{
+
+.btn a {
     text-decoration: none;
-    color:white;
+    color: white;
 }
 
-.container{
-    width:100% !important;
+.container {
+    width: 100% !important;
 }
+
 h2 {
     margin: 0px;
     margin-bottom: 1%;
     color: rgb(232, 79, 29);
 }
+
 h1 {
     margin: 0px;
     margin-bottom: 1%;
     color: rgb(232, 79, 29);
 }
+
 h3 {
-    margin:0;
+    margin: 0;
     color: rgb(232, 79, 29);
 }
+
 .Sub-Drop {
-    cursor:pointer !important;
-}
-.Sub-Drop span{
-    float:right;
+    cursor: pointer !important;
 }
 
+    .Sub-Drop.active .nav {
+        display: block;
+        background-color: #EEEEEE;
+        font-weight: bold;
+    }
 
+    .Sub-Drop .nav {
+        display: none;
+        background-color: white;
+        font-weight: normal;
+    }
 
-
+    .Sub-Drop span {
+        float: right;
+    }

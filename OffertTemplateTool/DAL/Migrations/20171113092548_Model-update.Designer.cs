@@ -8,12 +8,13 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using OffertTemplateTool.DAL.Context;
 using System;
 
-namespace OffertTemplateTool.DAL.Migrations
+namespace OffertTemplateTool.Dal.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20171113092548_Model-update")]
+    partial class Modelupdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,13 +79,11 @@ namespace OffertTemplateTool.DAL.Migrations
 
                     b.Property<string>("DebtorNumber");
 
-                    b.Property<string>("DocumentCode");
+                    b.Property<int>("DocumentCode");
 
                     b.Property<Guid?>("EstimateId");
 
                     b.Property<string>("IndexContent");
-
-                    b.Property<int>("IsOpen");
 
                     b.Property<DateTime?>("LastUpdatedAt");
 

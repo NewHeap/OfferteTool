@@ -15,9 +15,7 @@ using NetOffice.WordApi;
 using NetOffice.WordApi.Enums;
 using System.Text.RegularExpressions;
 using OffertTemplateTool.Connectors;
-using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
-using System.Diagnostics;
 using System.Text;
 
 namespace OffertTemplateTool.Controllers
@@ -31,10 +29,11 @@ namespace OffertTemplateTool.Controllers
         private EstimateLinesRepository EstimateLinesRepository { get; set; }
         private EstimateConnectsRepository EstimateConnectsRepository { get; set; }
         private SettingsRepository SettingsRepository { get; set; }
-        internal WeFactConnector wefactconnector { get; }
+        internal WeFactConnector wefactconnector { get; set; }
         Application app;
         Document doc;
         string projectname;
+        string path = Path.GetTempPath();
 
         public OfferController(IRepository<Offers> offerrepository, IRepository<Users> userrepository, IRepository<Estimates> estimaterepository,
             IRepository<EstimateLines> estimatlinesrepository, IRepository<EstimateConnects> estimateconnectsrepository,
@@ -65,6 +64,21 @@ namespace OffertTemplateTool.Controllers
                     ProjectName = x.ProjectName,
                     Id = x.Id
                 }).ToList();
+
+                List<string> templates = new List<string>();
+                var files = Directory.GetFiles(@"wwwroot/OfferteTemplates/")
+                    .Select(Path.GetFileName)
+                    .ToArray();
+                foreach (var item in files)
+                {
+                    var file = item.Replace(".docx", "");
+                    if (file[0].ToString() != "~" && file[1].ToString() != "$")
+                    {
+                        templates.Add(file);
+                    }
+                }
+                ViewData["templates"] = templates;
+
                 return View();
             }
             else
@@ -150,6 +164,9 @@ namespace OffertTemplateTool.Controllers
                 offerte.Estimate = est;
                 await OfferRepository.UpdateAsync(offerte);
 
+                wefactconnector.AddOffer(model.DebtorNumber, offerte.Id);
+
+
                 return Ok();
             }
             else
@@ -181,7 +198,7 @@ namespace OffertTemplateTool.Controllers
             }
             try
             {
-                Offers offer = await OfferRepository.FindAsync(model.Id);
+                Offers offer = await OfferRepository.FindAsync((System.Guid)model.Id);
                 Users user = UserRepository.FindUserByEmail(User.Identity.Name);
                 var estimate = await EstimateRepository.FindAsync(model.Estimate);
 
@@ -260,7 +277,7 @@ namespace OffertTemplateTool.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditOffer(Guid Id)
+        public async Task<IActionResult> EditOffer(System.Guid Id)
         {
             ICollection<Offers> offers;
             ICollection<EstimateConnects> Connect;
@@ -300,10 +317,10 @@ namespace OffertTemplateTool.Controllers
             return View(offerte);
         }
 
-        public async Task<IActionResult> ExportOffer(Guid Id, bool download)
+        public async Task<IActionResult> ExportOffer(Guid Id, string template)
         {
             var rows = 1;
-            decimal totalcost = 0;
+            float totalcost = 0;
             ICollection<Offers> offers;
             ICollection<EstimateConnects> Connect;
             using (var context = new DataBaseContext())
@@ -325,9 +342,13 @@ namespace OffertTemplateTool.Controllers
             var debtor = wefactconnector.GetCustomerInfo(offer.DebtorNumber);
             projectname = offer.ProjectName;
 
+            var offerte = await OfferRepository.FindAsync(offer.Id);
+            offerte.IsOpen = 1;
+            await OfferRepository.SaveChangesAsync();
+
             DateTime lastupdate = DateTime.Parse(offer.LastUpdatedAt.ToString());
 
-            doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/OfferteTemplates/NewHeapTemplate.docx"));
+            doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/OfferteTemplates/" + template + ".docx"));
             app.Visible = false;
             doc.Activate();
 
@@ -401,9 +422,9 @@ namespace OffertTemplateTool.Controllers
 
             tableTotal.Cell(2, 1).Select();
             app.Selection.TypeText("btw " + btwpercentage.Value + "%");
-            var btwdecimal = decimal.Parse(btwpercentage.Value);
+            var btwdecimal = float.Parse(btwpercentage.Value);
 
-            decimal btw = totalcost / 100 * btwdecimal;
+            float btw = totalcost / 100 * btwdecimal;
             tableTotal.Cell(2, 2).Select();
             app.Selection.TypeText("\u20AC" + btw.ToString("#,##0.00"));
 
@@ -412,32 +433,31 @@ namespace OffertTemplateTool.Controllers
 
             tableTotal.Cell(3, 2).Select();
             app.Selection.TypeText("\u20AC" + (totalcost + btw).ToString("#,##0.00"));
-            doc.SaveAs2(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".docx"));
+            doc.SaveAs2(path + "/Offer" + offer.ProjectName + ".docx");
             doc.Close();
 
-            doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".docx"));
+            doc = app.Documents.Open(path + "/Offer" + offer.ProjectName + ".docx");
             FindAndReplace("<Content>", offer.IndexContent, true);
 
-            doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".html"));
-            doc.SaveAs2(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".pdf"), WdSaveFormat.wdFormatPDF);
+            doc = app.Documents.Open(path + "/Offer" + offer.ProjectName + ".html");
+            doc.SaveAs2(path + "/Offer" + projectname + ".pdf", WdSaveFormat.wdFormatPDF);
             doc.Close();
             app.Quit();
 
-            if (download == true)
-            {
-                Response.Clear();
-                Response.ContentType = "Application/pdf";
-                Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=Offer" + offer.ProjectName + ".pdf;"));
+            //download
+            Response.Clear();
+            Response.ContentType = "Application/pdf";
+            Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=Offer" + offer.ProjectName + ".pdf;"));
 
-                byte[] arr = System.IO.File.ReadAllBytes(@"wwwroot/Exporteoffers/Offer" + offer.ProjectName + ".pdf");
-                Response.Headers.Add("Content-Length", arr.Length.ToString());
-                await Response.Body.WriteAsync(arr, 0, arr.Length);
-                Response.Clear();
-            }
+            byte[] arr = System.IO.File.ReadAllBytes(path + "/Offer" + projectname + ".pdf");
+            Response.Headers.Add("Content-Length", arr.Length.ToString());
+            await Response.Body.WriteAsync(arr, 0, arr.Length);
+            Response.Clear();
+            
             return Redirect("../offer");
         }
 
-        public async Task<IActionResult> DeleteOffer(Guid Id)
+        public async Task<IActionResult> DeleteOffer(System.Guid Id)
         {
             ICollection<Offers> offers;
             ICollection<EstimateConnects> Connect;
@@ -498,11 +518,11 @@ namespace OffertTemplateTool.Controllers
                 app.Selection.Find.Execute(find);
                 replace = replace.Replace("<h1>", pagebreak + "<h1>");
                 app.Selection.TypeText(replace);
-                
-                doc.SaveAs(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Exporteoffers/Offer" + projectname + ".html"), fileFormat: WdSaveFormat.wdFormatHTML);
+
+                doc.SaveAs(path + "/Offer" + projectname + ".html", fileFormat: WdSaveFormat.wdFormatHTML);
                 doc.Close();
-                
-                HtmlConverter(@"wwwroot/Exporteoffers/Offer" + projectname + ".html");
+
+                HtmlConverter(path + "/Offer" + projectname + ".html");
             }
             else
             {
@@ -549,7 +569,6 @@ namespace OffertTemplateTool.Controllers
                     lines[i] = lines[i].Replace("&amp;", "&");
                 }
             }
-
             System.IO.File.WriteAllLines(FilePath, lines, Encoding.GetEncoding(1252));
         }
     }

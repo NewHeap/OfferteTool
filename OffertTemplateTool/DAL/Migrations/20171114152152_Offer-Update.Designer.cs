@@ -11,9 +11,10 @@ using System;
 namespace OffertTemplateTool.DAL.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20171114152152_Offer-Update")]
+    partial class OfferUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,7 +79,7 @@ namespace OffertTemplateTool.DAL.Migrations
 
                     b.Property<string>("DebtorNumber");
 
-                    b.Property<string>("DocumentCode");
+                    b.Property<int>("DocumentCode");
 
                     b.Property<Guid?>("EstimateId");
 

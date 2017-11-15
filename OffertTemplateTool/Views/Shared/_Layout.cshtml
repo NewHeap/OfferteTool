@@ -51,7 +51,8 @@
         <div class="content">
             <div class="row">
                 <div class="col-md-2 content-block side-bar">
-                    <h3 style="padding:2%;">Menu</h3>
+                    <h1 style="padding:2%; margin:0;">Menu</h1>
+                    <hr />
                     <ul class="nav">
                         <li><a asp-area="" asp-controller="Home" asp-action="Index">DashBoard</a></li>
                         <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
@@ -60,6 +61,7 @@
                             <ul class="nav" style="display:none;">
                                 <li><a asp-area="" asp-controller="Settings" asp-action="Keywords">KeyWords</a></li>
                                 <li><a asp-area="" asp-controller="Settings" asp-action="PlaceHolders">Template-Placeholders</a></li>
+                                <li><a asp-area="" asp-controller="offer" asp-action="offerupload">Upload Template</a></li>
                             </ul>
                         </li>
                         <li><a asp-area="" asp-controller="Offer" asp-action="Index">Offers</a></li>
@@ -72,7 +74,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col-md-9 content-block content-index">
+                <div class="col-md-9 content-block content-index" style="display:none;">
                     @RenderBody()
                 </div>
             </div>
@@ -84,27 +86,14 @@
 </body>
 </html>
 <script>
+    $(".content-index").fadeIn("slow");
     $(".dropdown-toggle").click(function () {
         $('.dropdown-toggle').dropdown();
     });
     $(document).ready(function () {
-        $(".Sub-Drop").click(function (e) {
-            if ($(this).hasClass("active")) {
-                $(this).parent().children("ul").css("display", "none");
-                $(this).css("background-color", "white");
-                $(this).removeClass("active");
-                $(this).children("span").removeClass("glyphicon-menu-down");
-                $(this).children("span").addClass("glyphicon-menu-right");
-            } else {
-                $(this).addClass("active");
-                $(this).parent().children("ul").css("display", "block");
-                $(this).css("background-color", "#EEEEEE");
-                $(this).children("span").removeClass("glyphicon-menu-right");
-                $(this).children("span").addClass("glyphicon-menu-down");
-            }
 
-           
-            
+        $(".Sub-Drop").click(function (e) {
+            Dropdown(this);
         });
     });
 

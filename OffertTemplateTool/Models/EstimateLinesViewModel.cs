@@ -12,10 +12,10 @@ namespace OffertTemplateTool.Models
         [Required]
         public string Specification { get; set; }
         [Required]
-        public decimal HourCost { get; set; }
+        public float HourCost { get; set; }
         [Required]
         public double Hours { get; set; }
         [Required]
-        public decimal TotalCost { get; set; }
+        public float TotalCost { get; set; }
     }
 }

@@ -10,5 +10,6 @@ namespace OffertTemplateTool.Models
     {
         public List<WeFactDebtorsModel> Debtors { get; set; }   
         public WeFactDebtorsModel Debtor { get; set; }
+        public Invoice Invoice { get; set; }
     }
 }

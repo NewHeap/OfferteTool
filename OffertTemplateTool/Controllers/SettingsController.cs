@@ -38,11 +38,11 @@ namespace OffertTemplateTool.Controllers
                     Value = model.Value
                 };
                 await SettingsRepository.AddAsync(settings);
-                return Redirect("../Settings");
+                return Redirect("../Settings/keywords");
             }
             else
             {
-                return Redirect("../Settings");
+                return Redirect("../Settings/KeyWords");
             }  
         }
 
@@ -52,20 +52,19 @@ namespace OffertTemplateTool.Controllers
             setting.Key = model.Key;
             setting.Value = model.Value;
             await SettingsRepository.SaveChangesAsync();
-            return Redirect("../");
+            return Redirect("../KeyWords");
         }
         public async Task<IActionResult> Delete(Guid id)
         {
             await SettingsRepository.RemoveAsync(id);
-            return Redirect("../");
+            return Redirect("../KeyWords");
         }
 
         public IActionResult PlaceHolders()
         {
             return View();
         }
-
-
+        
         public async Task<Settings> getSetting(Guid id)
         {
             return await SettingsRepository.FindAsync(id);

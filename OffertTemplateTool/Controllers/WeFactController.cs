@@ -23,7 +23,6 @@ namespace OffertTemplateTool.Controllers
         public IActionResult Index()
         {
             var contactList = WeFactConnector.GetCustomers();
-
             return View(contactList);
         }
     }

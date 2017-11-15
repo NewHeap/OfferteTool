@@ -15,45 +15,23 @@
 
 
 <div class="row">
-    <div class="col-md-10" style="border:1px solid grey; border-radius:4px; width:100%;">
-        <div class="row row-header" style="border:1px solid grey; -moz-border-radius-topleft: 4px; -moz-border-radius-topright: 4px;">
-            <div class="col-md-3">
-                <b>Identifier:</b>
-            </div>
-            <div class="col-md-3">
-                <b>DebtorCode:</b>
-            </div>
-            <div class="col-md-3">
-                <b>FullName:</b>
-            </div>
-            <div class="col-md-3">
-                <b>CompanyName:</b>
-            </div>
-        </div>
-
-        @foreach (var item in Model)
-        {
-            <div class="row">
-                <div class="col-md-3">
-                    @item.Identifier
-                </div>
-                <div class="col-md-3">
-                    @item.DebtorCode
-                </div>
-                <div class="col-md-3">
-                    @item.Initials
-                    @item.SurName
-                </div>
-                <div class="col-md-3">
-                    @item.CompanyName
-                </div>
-            </div>
-        }
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <tr>
+                <th>Identifier:</th>
+                <th>DebtorCode:</th>
+                <th>FullName:</th>
+                <th>CompanyName:</th>
+            </tr>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Identifier</td>
+                    <td>@item.DebtorCode</td>
+                    <td>@item.Initials @item.SurName</td>
+                    <td>@item.CompanyName</td>
+                </tr>
+            }
+        </table>
     </div>
 </div>
-
-<script>
-    $(".row-header").click(function () {
-        RequestRedirect("../wefact/p");
-    });
-</script>

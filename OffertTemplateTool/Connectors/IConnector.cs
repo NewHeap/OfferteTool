@@ -10,5 +10,7 @@ namespace OffertTemplateTool.Connectors
     {
         WeFactDebtorsModel GetCustomerInfo(string debtorcode);
         ICollection<WeFactDebtorsModel> GetCustomers();
+
+
     }
 }

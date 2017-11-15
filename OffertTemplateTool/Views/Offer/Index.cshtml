@@ -2,6 +2,7 @@
 @model OfferViewModel;
 @{
     ViewData["Title"] = "Offers";
+    var templates = (List<string>)ViewData["templates"];
     List<OfferViewModel> offertes = (List<OfferViewModel>)ViewData["offertes"];
     int id = 0;
 }
@@ -10,11 +11,16 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Do you Like to download the file?</h4>
+                <h4 class="modal-title">Wich template you want to select</h4>
             </div>
             <div class="modal-body">
-                <button class="btn btn-success"><a id="yes" href="">Yes</a></button>
-                <button class="btn btn-success"><a id="no" href="">No</a></button>
+                <select name="Template" class="template">
+                    @foreach (var item in templates)
+                    {
+                        <option value="@item">@item.ToString()</option>
+                    }
+                </select>
+                <button class="btn btn-success" id="confirm">Confirm</button>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -30,8 +36,6 @@
     </div>
     
 </div>
-
-
 <div class="row">
     <div class="col-md-12">
         <button class="btn btn-success newoffer"><a href="~/Offer/NewOffer">New Offer</a></button>
@@ -73,14 +77,10 @@
         }
     });
 
-    $("#no").click(function () {
+    $("#confirm").click(function () {
         var id = $("#export_" + exportid).data("id");
-        $("#no").attr("href", "../offer/exportoffer?Id=" + id + "&Download=false");
-    });
-
-    $("#yes").click(function () {
-        var id = $("#export_" + exportid).data("id");
-        $("#yes").attr("href", "../offer/exportoffer?Id=" + id + "&Download=true");
+        var template = $(".template").val();
+        window.location.replace("/offer/exportoffer?Id=" + id + "&Template=" + template);
     });
 
 

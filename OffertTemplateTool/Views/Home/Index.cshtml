@@ -1,7 +1,11 @@
-﻿@{
+﻿@using OffertTemplateTool.DAL.Models;
+@{
     ViewData["Title"] = "Home Page";
     int templatenumber = 0;
+    int rownumber = 0;
     List<string> files = (List<string>)ViewData["templates"];
+    List<Offers> openoffer = (List<Offers>)ViewData["open"];
+    List<Offers> exportedoffer = (List<Offers>)ViewData["exported"];
 }
 <div class="row">
     <div class="col-md-12">
@@ -22,19 +26,19 @@
                 <table class="table table-striped">
                     <tr>
                         <th>nr</th>
-                        <th></th>
-                        <th></th>
+                        <th>ProjectName</th>
+                        <th>DocumentCode</th>
                     </tr>
-                    <tr>
-                        <th>1</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                    <tr>
-                        <th>2</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
+                    @{rownumber = 0; }
+                    @foreach (var item in openoffer)
+                    {
+                        rownumber++;
+                        <tr>
+                            <th>@rownumber</th>
+                            <td>@item.ProjectName</td>
+                            <td>@item.DocumentCode</td>
+                        </tr>
+                    }
                 </table>
             </div>
         </div>
@@ -51,19 +55,19 @@
                 <table class="table table-striped">
                     <tr>
                         <th>nr</th>
-                        <th></th>
-                        <th></th>
+                        <th>ProjectName</th>
+                        <th>DocumentCode</th>
                     </tr>
-                    <tr>
-                        <th>1</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                    <tr>
-                        <th>2</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
+                    @{ rownumber = 0;}
+                    @foreach (var item in exportedoffer)
+                    {
+                        rownumber++;
+                        <tr>
+                            <th>@rownumber</th>
+                            <td>@item.ProjectName</td>
+                            <td>@item.DocumentCode</td>
+                        </tr>
+                    }
                 </table>
             </div>
         </div>
@@ -86,6 +90,7 @@
                         <tr>
                             <th>@templatenumber</th>
                             <td>@item.ToString()</td>
+                            <td>@Html.ActionLink("Delete", "DeleteTemplate", "Home", new { filename = item})</td>
                         </tr>
                     }
                 </table>

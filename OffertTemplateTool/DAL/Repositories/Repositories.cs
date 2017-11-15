@@ -69,7 +69,7 @@ namespace OffertTemplateTool.DAL.Repositories
         {
 
         }
-        public bool AnyLineExist(Guid id)
+        public bool AnyLineExist(System.Guid id)
         {
             var lines = GetAll();
             return lines.Any(x => x.Id.Equals(id));
@@ -90,7 +90,7 @@ namespace OffertTemplateTool.DAL.Repositories
 
         }
 
-        public List<EstimateConnects> SelectEstimateLines(Guid Id)
+        public List<EstimateConnects> SelectEstimateLines(System.Guid Id)
         {
             var lines = GetAll();
             var estimatelines = lines.Where(x => x.Estimate.Id == Id).ToList();
