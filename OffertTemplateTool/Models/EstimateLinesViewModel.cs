@@ -11,11 +11,10 @@ namespace OffertTemplateTool.Models
         public Guid Id { get; set; }
         [Required]
         public string Specification { get; set; }
-        [Required]
         public float HourCost { get; set; }
-        [Required]
         public double Hours { get; set; }
         [Required]
         public float TotalCost { get; set; }
+        public int WefactIdentifier { get; set; }
     }
 }

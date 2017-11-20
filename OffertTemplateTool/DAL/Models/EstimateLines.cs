@@ -19,5 +19,6 @@ namespace OffertTemplateTool.DAL.Models
         public double Hours { get; set; }
         [Required]
         public  float TotalCost { get; set; }
+        public int WefactIdentifier { get; set; }
     }
 }

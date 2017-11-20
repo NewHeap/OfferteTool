@@ -69,6 +69,9 @@
                     <div class="col-md-2">
                         <input asp-for="EstimateLines" class="form-control" id="TotalCost_@id" value="@item.EstimateLines.TotalCost" />
                     </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-danger row-delete">Delete Row</button>
+                    </div>
                 </div>
                 id++;
             }
@@ -104,7 +107,7 @@
             '<div class="col-md-2">' +  
             '<input name="EstimateLines" class="form-control" id="TotalCost_' + id +'" placeholder="TotalCost" />' +
                 '</div> ' +
-            '</div>'
+            '<div class="col-md-2"><button class="btn btn-danger row-delete">Delete Row</button></div></div>'
         );
         id++;
         return;
@@ -166,6 +169,10 @@
                 errormessages(response.repsponsetext, id);
             },
         });
-
     }
+    $(document).on("click", ".row-delete", function (e) {
+        console.log("button clicked");
+        $(this).parent().parent().remove();
+        console.log(id);
+    });
 </script>

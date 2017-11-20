@@ -11,9 +11,10 @@ using System;
 namespace OffertTemplateTool.DAL.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20171116080932_Offermodel-update")]
+    partial class Offermodelupdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,8 +52,6 @@ namespace OffertTemplateTool.DAL.Migrations
                         .IsRequired();
 
                     b.Property<float>("TotalCost");
-
-                    b.Property<int>("WefactIdentifier");
 
                     b.HasKey("Id");
 

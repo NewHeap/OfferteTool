@@ -163,10 +163,7 @@ namespace OffertTemplateTool.Controllers
 
                 offerte.Estimate = est;
                 await OfferRepository.UpdateAsync(offerte);
-
-                wefactconnector.AddOffer(model.DebtorNumber, offerte.Id);
-
-
+                
                 return Ok();
             }
             else
@@ -241,7 +238,6 @@ namespace OffertTemplateTool.Controllers
                 offer.UpdatedBy = user;
                 offer.ProjectName = model.ProjectName;
                 offer.DebtorNumber = model.DebtorNumber;
-                offer.DocumentCode = model.DocumentCode;
 
                 await OfferRepository.SaveChangesAsync();
 
@@ -395,7 +391,7 @@ namespace OffertTemplateTool.Controllers
                 app.Selection.TypeText(item.EstimateLines.Specification);
 
                 table.Cell(rows, 2).Select();
-                app.Selection.TypeText("\u20AC" + item.EstimateLines.HourCost.ToString());
+                app.Selection.TypeText("\u20AC" + item.EstimateLines.HourCost.ToString("#,##0.00"));
 
                 table.Cell(rows, 3).Select();
                 app.Selection.TypeText(item.EstimateLines.Hours.ToString());

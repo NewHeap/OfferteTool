@@ -28,9 +28,18 @@
             }
         </select>
         <br />
+        <div class="row">
+            <div class="col-md-6">
+                <label>IndexContent:</label>
+                <textarea class="summernote"></textarea>
+            </div>
+            <div class="col-md-6">
+                <label>Content2:</label>
+                <textarea class="summernote"></textarea>
+            </div>
+        </div>
 
-        <label>IndexContent:</label>
-        <textarea class="summernote"></textarea>
+
         <label>estimate:</label>
         <a class="new">New Line</a>
         <div class="row">
@@ -59,12 +68,13 @@
 
     $(document).ready(function () {
         $('.summernote').summernote({
-            height: 300
+            height: 300,
+            width: 500
         });
 
     $(".new").click(function (e) {
         $(".newline-container").append(
-            '<div class="row new-row "><div class="col-md-2">' +
+            '<div class="row new-row"><div class="col-md-2">' +
             '<input name="EstimateLines" class="form-control" id="Specification' + id +'" placeholder="Specification" />' +
             '</div>' +
                 '<div class="col-md-2">' +
@@ -76,7 +86,7 @@
             '<div class="col-md-2">' +
             '<input name="EstimateLines" class="form-control" id="totalcost' + id +'" placeholder="TotalCost" />' +
                 '</div>' +
-            '<div class="col-md-2"><button class="btn btn-danger row-delete">Delete Row</button></div></div>'
+            '</div>'
         );
         id++;
         return;
@@ -102,18 +112,14 @@
             "EstimateLines": [
             ]
         };
-        var lineid = 0;
+
         for (var i = 0; i < id; i++) {
-            console.log($("#Specification" + i ).val());
-            if (!$("#Specification" + i).val() == "") {
-                postBody.EstimateLines[lineid] = {
-                    "Specification": $("#Specification" + i).val(),
-                    "HourCost": $("#hourscost" + i).val(),
-                    "Hours": $("#hours" + i).val(),
-                    "TotalCost": $("#totalcost" + i).val()
-                };
-                lineid++;
-            }
+            postBody.EstimateLines[i] = {
+                "Specification": $("#Specification" + i).val(),
+                "HourCost": $("#hourscost" + i).val(),
+                "Hours": $("#hours" + i).val(),
+                "TotalCost": $("#totalcost" + i).val()
+            };
         }
         var redirect = function(){
             window.location.replace("../Offer");
@@ -143,13 +149,6 @@
             },
         });
     }
-
-
-    $(document).on("click", ".row-delete", function (e) {
-        console.log("button clicked");
-        $(this).parent().parent().remove();
-        console.log(id);
-    });
     });
 </script>
 

@@ -1,15 +1,18 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using OffertTemplateTool.Models.wefactModels;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace OffertTemplateTool.Models
+namespace OffertTemplateTool.Models.wefactModels
 {
-    public class Invoice
+    public class WefactInvoiceLine
     {
-        public Invoice()
-        {
+        public int Identifier { get; set; }
+    }
 
-        }
+    public class WefactInvoice
+    {
         public string api_key { get; set; }
         public string controller { get; set; }
         public string action { get; set; }
@@ -18,6 +21,6 @@ namespace OffertTemplateTool.Models
         [JsonProperty(PropertyName = "Concept")]
         public int Concept { get; set; }
         public int Identifier { get; set; }
-        public List<Dictionary<string, string>> InvoiceLines { get; set; }
+        public List<WefactInvoiceLine> InvoiceLines { get; set; }
     }
 }

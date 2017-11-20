@@ -37,7 +37,7 @@ namespace OffertTemplateTool.Controllers
                 var offers = await OfferRepository.GetAllAsync();
                 foreach (var item in offers)
                 {
-                    if (item.IsOpen == 1)
+                    if (item.IsOpen == 0)
                     {
                         offeropen.Add(item);
                     }
