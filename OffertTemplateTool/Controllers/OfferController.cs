@@ -17,6 +17,8 @@ using System.Text.RegularExpressions;
 using OffertTemplateTool.Connectors;
 using Microsoft.AspNetCore.Authorization;
 using System.Text;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace OffertTemplateTool.Controllers
 {
@@ -30,10 +32,10 @@ namespace OffertTemplateTool.Controllers
         private EstimateConnectsRepository EstimateConnectsRepository { get; set; }
         private SettingsRepository SettingsRepository { get; set; }
         internal WeFactConnector wefactconnector { get; set; }
-        Application app;
-        Document doc;
-        string projectname;
-        string path = Path.GetTempPath();
+        //Application app;
+        //Document doc;
+        //string projectname;
+        //string path = Path.GetTempPath();
 
         public OfferController(IRepository<Offers> offerrepository, IRepository<Users> userrepository, IRepository<Estimates> estimaterepository,
             IRepository<EstimateLines> estimatlinesrepository, IRepository<EstimateConnects> estimateconnectsrepository,
@@ -47,7 +49,7 @@ namespace OffertTemplateTool.Controllers
             EstimateConnectsRepository = (EstimateConnectsRepository)estimateconnectsrepository;
             SettingsRepository = (SettingsRepository)settingsrepository;
             wefactconnector = (WeFactConnector)wefactConnector;
-            app = new Application();
+
         }
 
         public async Task<IActionResult> Index()
@@ -77,6 +79,7 @@ namespace OffertTemplateTool.Controllers
                         templates.Add(file);
                     }
                 }
+
                 ViewData["templates"] = templates;
 
                 return View();
@@ -120,6 +123,9 @@ namespace OffertTemplateTool.Controllers
             {
                 Users user = UserRepository.FindUserByEmail(User.Identity.Name);
                 var customer = wefactconnector.GetCustomerInfo(model.DebtorNumber);
+                var settingdocument = SettingsRepository.getSpecificSetting("DocumentCode");
+                int documentcode = int.Parse(settingdocument.Value);
+                var code = documentcode.ToString("000");
 
                 var offerte = new Offers
                 {
@@ -130,9 +136,14 @@ namespace OffertTemplateTool.Controllers
                     CreatedAt = DateTime.Now,
                     LastUpdatedAt = DateTime.Now,
                     UpdatedBy = user,
+                    DocumentCode = "PV" + code
                 };
 
                 await OfferRepository.AddAsync(offerte);
+
+                documentcode++;
+                settingdocument.Value = documentcode.ToString();
+                await SettingsRepository.SaveChangesAsync();
 
                 var est = new Estimates
                 {
@@ -163,7 +174,7 @@ namespace OffertTemplateTool.Controllers
 
                 offerte.Estimate = est;
                 await OfferRepository.UpdateAsync(offerte);
-                
+
                 return Ok();
             }
             else
@@ -195,10 +206,27 @@ namespace OffertTemplateTool.Controllers
             }
             try
             {
-                Offers offer = await OfferRepository.FindAsync((System.Guid)model.Id);
-                Users user = UserRepository.FindUserByEmail(User.Identity.Name);
-                var estimate = await EstimateRepository.FindAsync(model.Estimate);
+                ICollection<EstimateConnects> Connect;
+                ICollection<Offers> offers;
 
+                using (var context = new DataBaseContext())
+                {
+                    offers = context.Offer
+                   .Include(offermodel => offermodel.Estimate)
+                   .Include(users => users.CreatedBy)
+                   .Include(users => users.UpdatedBy)
+                    .ToList();
+
+                    Connect = context.EstimateConnects
+                    .Include(line => line.EstimateLines)
+                    .ToList();
+                }
+
+                Offers offer = await OfferRepository.FindAsync((System.Guid)model.Id);
+                var dboffer = offers.FirstOrDefault(x => x.Id.Equals(model.Id));
+                Users user = UserRepository.FindUserByEmail(User.Identity.Name);
+                var estimate = await EstimateRepository.FindAsync(dboffer.Estimate.Id);
+                var connectlines = Connect.Where(x => x.Estimate.Id.Equals(dboffer.Estimate.Id)).ToList();
                 if (model.EstimateLines != null)
                 {
                     foreach (var item in model.EstimateLines)
@@ -229,6 +257,13 @@ namespace OffertTemplateTool.Controllers
                                 EstimateLines = newline
                             };
                             await EstimateConnectsRepository.AddAsync(newconnect);
+                        }
+                    }
+                    foreach (var connectline in connectlines)
+                    {
+                        if (!model.EstimateLines.Any(x => x.Id == connectline.EstimateLines.Id))
+                        {
+                            await EstimateConnectsRepository.RemoveAsync(connectline.Id);
                         }
                     }
                 }
@@ -316,6 +351,7 @@ namespace OffertTemplateTool.Controllers
         public async Task<IActionResult> ExportOffer(Guid Id, string template)
         {
             var rows = 1;
+            var path = Path.GetTempPath();
             float totalcost = 0;
             ICollection<Offers> offers;
             ICollection<EstimateConnects> Connect;
@@ -336,120 +372,135 @@ namespace OffertTemplateTool.Controllers
             var estimate = await EstimateRepository.FindAsync(offer.Estimate.Id.ToString());
             var lines = Connect.Where(x => x.Estimate.Id == estimate.Id).ToList();
             var debtor = wefactconnector.GetCustomerInfo(offer.DebtorNumber);
-            projectname = offer.ProjectName;
+            var projectname = offer.ProjectName;
 
             var offerte = await OfferRepository.FindAsync(offer.Id);
             offerte.IsOpen = 1;
             await OfferRepository.SaveChangesAsync();
 
             DateTime lastupdate = DateTime.Parse(offer.LastUpdatedAt.ToString());
-
-            doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/OfferteTemplates/" + template + ".docx"));
-            app.Visible = false;
-            doc.Activate();
-
-            FindAndReplace("<CustomerCompany>", debtor.CompanyName, false);
-            FindAndReplace("<CustomerName>", debtor.Initials + ". " + debtor.SurName, false);
-            FindAndReplace("<CustomerStreet>", debtor.Address, false);
-            FindAndReplace("<CustomerZipCode>", debtor.ZipCode + " " + debtor.City, false);
-            FindAndReplace("<Customercountry>", debtor.Country, false);
-            //projectinfo
-            FindAndReplace("<ProjectName>", offer.ProjectName, false);
-            FindAndReplace("<LastUpdated>", lastupdate.ToShortDateString().ToString(), false);
-            FindAndReplace("<CreatedBy>", offer.CreatedBy.FirstName, false);
-            FindAndReplace("<ProjectName>", offer.ProjectName, false);
-            //customer info relatie
-            FindAndReplace("<CustomerCompany>", debtor.CompanyName, false);
-            FindAndReplace("<CustomerName>", debtor.Initials + ". " + debtor.SurName, false);
-            FindAndReplace("<CustomerStreet>", debtor.Address, false);
-            FindAndReplace("<CustomerZipCode>", debtor.ZipCode + " " + debtor.City, false);
-            FindAndReplace("<EmailCustomer>", debtor.EmailAddress, false);
-
-            //Estimate table
-            app.Selection.Find.Execute("<Estimate>");
-            app.Selection.InsertBreak(WdBreakType.wdLineBreak);
-            Table table = doc.Tables.Add(app.Selection.Range, lines.Count + 1, 4);
-            table.Style = WdBuiltinStyle.wdStyleTableLightShading;
-
-            table.Cell(rows, 1).Select();
-            app.Selection.TypeText("Specification");
-
-            table.Cell(rows, 2).Select();
-            app.Selection.TypeText("HourCost");
-
-            table.Cell(rows, 3).Select();
-            app.Selection.TypeText("Hours");
-
-            table.Cell(rows, 4).Select();
-            app.Selection.TypeText("TotalCost");
-
-            foreach (var item in lines)
+            using (var app = new Application())
             {
-                rows++;
+                var doc = app.Documents.Open(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/OfferteTemplates/" + template + ".docx"));
+                app.Visible = false;
+                doc.Activate();
+
+                doc.FindAndReplace(app, "<CustomerCompany>", debtor.CompanyName, false);
+                doc.FindAndReplace(app, "<CustomerName>", debtor.Initials + ". " + debtor.SurName, false);
+                doc.FindAndReplace(app, "<CustomerStreet>", debtor.Address, false);
+                doc.FindAndReplace(app, "<CustomerZipCode>", debtor.ZipCode + " " + debtor.City, false);
+                doc.FindAndReplace(app, "<Customercountry>", debtor.Country, false);
+                //projectinfo
+                doc.FindAndReplace(app, "<ProjectName>", offer.ProjectName, false);
+                doc.FindAndReplace(app, "<LastUpdated>", lastupdate.ToShortDateString().ToString(), false);
+                doc.FindAndReplace(app, "<DocumentCode>", offer.DocumentCode, false);
+                doc.FindAndReplace(app, "<CreatedBy>", offer.CreatedBy.FirstName, false);
+                doc.FindAndReplace(app, "<ProjectName>", offer.ProjectName, false);
+                //customer info relatie
+                doc.FindAndReplace(app, "<CustomerCompany>", debtor.CompanyName, false);
+                doc.FindAndReplace(app, "<CustomerName>", debtor.Initials + ". " + debtor.SurName, false);
+                doc.FindAndReplace(app, "<CustomerStreet>", debtor.Address, false);
+                doc.FindAndReplace(app, "<CustomerZipCode>", debtor.ZipCode + " " + debtor.City, false);
+                doc.FindAndReplace(app, "<EmailCustomer>", debtor.EmailAddress, false);
+
+                //Estimate table
+                app.Selection.Find.Execute("<Estimate>");
+                app.Selection.InsertBreak(WdBreakType.wdLineBreak);
+                Table table = doc.Tables.Add(app.Selection.Range, lines.Count + 1, 4);
+                table.Style = WdBuiltinStyle.wdStyleTableLightShading;
 
                 table.Cell(rows, 1).Select();
-                app.Selection.TypeText(item.EstimateLines.Specification);
+                app.Selection.TypeText("Specification");
 
                 table.Cell(rows, 2).Select();
-                app.Selection.TypeText("\u20AC" + item.EstimateLines.HourCost.ToString("#,##0.00"));
+                app.Selection.TypeText("HourCost");
 
                 table.Cell(rows, 3).Select();
-                app.Selection.TypeText(item.EstimateLines.Hours.ToString());
+                app.Selection.TypeText("Hours");
 
                 table.Cell(rows, 4).Select();
-                app.Selection.TypeText("\u20AC" + item.EstimateLines.TotalCost.ToString("#,##0.00"));
+                app.Selection.TypeText("TotalCost");
 
-                totalcost = totalcost + item.EstimateLines.TotalCost;
+                foreach (var item in lines)
+                {
+                    rows++;
+
+                    table.Cell(rows, 1).Select();
+                    app.Selection.TypeText(item.EstimateLines.Specification);
+
+                    table.Cell(rows, 2).Select();
+                    app.Selection.TypeText("\u20AC" + item.EstimateLines.HourCost.ToString("#,##0.00"));
+
+                    table.Cell(rows, 3).Select();
+                    app.Selection.TypeText(item.EstimateLines.Hours.ToString());
+
+                    table.Cell(rows, 4).Select();
+                    app.Selection.TypeText("\u20AC" + item.EstimateLines.TotalCost.ToString("#,##0.00"));
+
+                    totalcost = totalcost + item.EstimateLines.TotalCost;
+                }
+                var btwpercentage = SettingsRepository.getBTW();
+
+                //totalcost table
+                app.Selection.Find.Execute("<TotalCosts>");
+                Table tableTotal = doc.Tables.Add(app.Selection.Range, 3, 2);
+                tableTotal.Style = WdBuiltinStyle.wdStyleTableLightShading;
+                tableTotal.PreferredWidth = 140;
+                tableTotal.Rows.Alignment = WdRowAlignment.wdAlignRowRight;
+
+                tableTotal.Cell(1, 1).Select();
+                app.Selection.TypeText("excl. btw");
+
+                tableTotal.Cell(1, 2).Select();
+                app.Selection.TypeText("\u20AC" + totalcost.ToString("#,##0.00"));
+
+                tableTotal.Cell(2, 1).Select();
+                app.Selection.TypeText("btw " + btwpercentage.Value + "%");
+                var btwdecimal = float.Parse(btwpercentage.Value);
+
+                float btw = totalcost / 100 * btwdecimal;
+                tableTotal.Cell(2, 2).Select();
+                app.Selection.TypeText("\u20AC" + btw.ToString("#,##0.00"));
+
+                tableTotal.Cell(3, 1).Select();
+                app.Selection.TypeText("Subtotaal");
+
+                tableTotal.Cell(3, 2).Select();
+                app.Selection.TypeText("\u20AC" + (totalcost + btw).ToString("#,##0.00"));
+                doc.SaveAs2(path + "/Offer" + offer.ProjectName + ".docx");
+                doc.Close();
+
+                doc = app.Documents.Open(path + "/Offer" + offer.ProjectName + ".docx");
+                doc.FindAndReplace(app, "<Content>", offer.IndexContent, true);
+
+                doc.SaveAs2(path + "/offer.docx");
+                doc.Close();
+
+                doc = app.Documents.Open(path + "/offer.docx");
+                DocumentExtensions.InsertPageNumbers(app, doc, offer.IndexContent);
+                doc.SaveAs(path + "/Offer" + projectname + ".html", fileFormat: WdSaveFormat.wdFormatHTML);
+                doc.Close();
+
+                DocumentExtensions.HtmlConverter(path + "/Offer" + projectname + ".html");
+
+                doc = app.Documents.Open(path + "/Offer" + offer.ProjectName + ".html");
+                doc.SaveAs2(path + "/Offer" + projectname + ".pdf", WdSaveFormat.wdFormatPDF);
+                doc.Close();
+                app.Quit();
+
+
+
+                //download
+                Response.Clear();
+                Response.ContentType = "Application/pdf";
+                Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=Offer" + offer.ProjectName + ".pdf;"));
+
+                byte[] arr = System.IO.File.ReadAllBytes(path + "/Offer" + projectname + ".pdf");
+                Response.Headers.Add("Content-Length", arr.Length.ToString());
+                await Response.Body.WriteAsync(arr, 0, arr.Length);
+                Response.Clear();
             }
-            var btwpercentage = SettingsRepository.getBTW();
 
-            //totalcost table
-            app.Selection.Find.Execute("<TotalsCosts>");
-            Table tableTotal = doc.Tables.Add(app.Selection.Range, 3, 2);
-            tableTotal.Style = WdBuiltinStyle.wdStyleTableLightShading;
-            tableTotal.PreferredWidth = 140;
-            tableTotal.Rows.Alignment = WdRowAlignment.wdAlignRowRight;
-
-            tableTotal.Cell(1, 1).Select();
-            app.Selection.TypeText("excl. btw");
-
-            tableTotal.Cell(1, 2).Select();
-            app.Selection.TypeText("\u20AC" + totalcost.ToString("#,##0.00"));
-
-            tableTotal.Cell(2, 1).Select();
-            app.Selection.TypeText("btw " + btwpercentage.Value + "%");
-            var btwdecimal = float.Parse(btwpercentage.Value);
-
-            float btw = totalcost / 100 * btwdecimal;
-            tableTotal.Cell(2, 2).Select();
-            app.Selection.TypeText("\u20AC" + btw.ToString("#,##0.00"));
-
-            tableTotal.Cell(3, 1).Select();
-            app.Selection.TypeText("Subtotaal");
-
-            tableTotal.Cell(3, 2).Select();
-            app.Selection.TypeText("\u20AC" + (totalcost + btw).ToString("#,##0.00"));
-            doc.SaveAs2(path + "/Offer" + offer.ProjectName + ".docx");
-            doc.Close();
-
-            doc = app.Documents.Open(path + "/Offer" + offer.ProjectName + ".docx");
-            FindAndReplace("<Content>", offer.IndexContent, true);
-
-            doc = app.Documents.Open(path + "/Offer" + offer.ProjectName + ".html");
-            doc.SaveAs2(path + "/Offer" + projectname + ".pdf", WdSaveFormat.wdFormatPDF);
-            doc.Close();
-            app.Quit();
-
-            //download
-            Response.Clear();
-            Response.ContentType = "Application/pdf";
-            Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=Offer" + offer.ProjectName + ".pdf;"));
-
-            byte[] arr = System.IO.File.ReadAllBytes(path + "/Offer" + projectname + ".pdf");
-            Response.Headers.Add("Content-Length", arr.Length.ToString());
-            await Response.Body.WriteAsync(arr, 0, arr.Length);
-            Response.Clear();
-            
             return Redirect("../offer");
         }
 
@@ -482,43 +533,23 @@ namespace OffertTemplateTool.Controllers
 
             return Redirect("../");
         }
+    }
 
+    public static class DocumentExtensions
+    {
         //find and replace function 
-        private void FindAndReplace(string find, string replace, bool indexcontent)
+        public static void FindAndReplace(this Document doc, Application app, string find, string replace, bool indexcontent)
         {
             if (indexcontent == true)
             {
                 var h1tags = Regex.Matches(replace, @"<h1>(.|\n)*?</h1>");
                 var ptags = Regex.Matches(replace, @"<p>(.|\n)*?</p>");
-                List<string> pagenumbers = new List<string>();
-                var characters = "";
-
-                app.Selection.Find.Execute("<Index>");
-                for (int i = 0; i < h1tags.Count; i++)
-                {
-                    app.Selection.Font.Name = "Courier new";
-                    int h1tagslength = Regex.Replace(h1tags[i].Value, @"<[^>]*>", "").Length;
-                    int charrepeat = 67 - h1tagslength;
-                    for (int c = 0; c < charrepeat; c++)
-                    {
-                        characters += ".";
-                    }
-
-                    ContentStyle(12, 0);
-                    app.Selection.TypeText(Regex.Replace(h1tags[i].Value, @"<[^>]*>", "") + characters + "<PageNumber>");
-                    app.Selection.InsertBreak(WdBreakType.wdLineBreak);
-                    characters = "";
-                }
                 var pagebreak = "\f";
                 app.Selection.Font.Name = "Calibri";
                 app.Selection.Find.Execute(find);
                 replace = replace.Replace("<h1>", pagebreak + "<h1>");
                 app.Selection.TypeText(replace);
-
-                doc.SaveAs(path + "/Offer" + projectname + ".html", fileFormat: WdSaveFormat.wdFormatHTML);
-                doc.Close();
-
-                HtmlConverter(path + "/Offer" + projectname + ".html");
+                app.Selection.Find.Execute("<h1>");
             }
             else
             {
@@ -527,13 +558,20 @@ namespace OffertTemplateTool.Controllers
             }
         }
 
-        private void ContentStyle(int fontsize, int fontbold)
+        public static void InsertPageNumbers(this Application app,Document doc, string content)
+        {
+            app.Selection.Find.Execute("<Index>");
+            TableOfContents toc = doc.TablesOfContents.Add(app.Selection.Range, useHeadingStyles: true);
+            toc.Update();
+        }
+
+        public static void ContentStyle(this Application app, int fontsize, int fontbold)
         {
             app.Selection.Font.Size = fontsize;
             app.Selection.Font.Bold = fontbold;
         }
 
-        private void HtmlConverter(string FilePath)
+        public static void HtmlConverter(string FilePath)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             string[] lines = System.IO.File.ReadAllLines(FilePath, Encoding.GetEncoding(1252));
@@ -556,16 +594,13 @@ namespace OffertTemplateTool.Controllers
                 {
                     lines[i] = lines[i].Replace("<h2>", "<h2 style='top-margin:0cm; color:rgb(232, 79, 29); font-size: 15pt;'>");
                 }
-                if (lines[i].Contains("Begroting"))
-                {
-                    lines[i] = lines[i].Replace("Begroting", "\f Begroting");
-                }
                 if (lines[i].Contains("&amp;"))
                 {
                     lines[i] = lines[i].Replace("&amp;", "&");
                 }
             }
             System.IO.File.WriteAllLines(FilePath, lines, Encoding.GetEncoding(1252));
+
         }
     }
 }

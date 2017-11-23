@@ -104,7 +104,7 @@
                 '<div class="col-md-2">' +
             '<input name="EstimateLines" class="form-control" id="HoursCost_' + id +'" placeholder="HoursCost" />' +
                 '</div>' +
-            '<div class="col-md-2">' +  
+            '<div class="col-md-2">' +
             '<input name="EstimateLines" class="form-control" id="TotalCost_' + id +'" placeholder="TotalCost" />' +
                 '</div> ' +
             '<div class="col-md-2"><button class="btn btn-danger row-delete">Delete Row</button></div></div>'
@@ -121,7 +121,7 @@
 
     var saveAll = function () {
 
-        var postBody = { 
+        var postBody = {
             "Id": "@Model.Id",
             "DebtorNumber": $(".company").val(),
             "DocumentCode": 0,
@@ -135,24 +135,28 @@
             "EstimateLines": [
             ]
         };
-
+        var lineid = 0;
         for (var i = 0; i < id; i++) {
-            postBody.EstimateLines[i] = {
-                "Id": $("#Id_" + i).val(),
-                "Specification": $("#Specification_" + i).val(),
-                "HourCost": $("#HoursCost_" + i).val(),
-                "Hours": $("#Hours_" + i).val(),
-                "TotalCost": $("#TotalCost_" + i).val()
-            };
+            console.log($("#Specification_" + i).val());
+            if (!$("#Specification_" + i).val() == "") {
+                postBody.EstimateLines[lineid] = {
+                    "Id": $("#Id_" + i).val(),
+                    "Specification": $("#Specification_" + i).val(),
+                    "HourCost": $("#HoursCost_" + i).val(),
+                    "Hours": $("#Hours_" + i).val(),
+                    "TotalCost": $("#TotalCost_" + i).val()
+                };
+                lineid++;
+            }
         }
 
         var redirect = function () {
             window.location.replace("../");
 
         }
-        
+
         console.log(postBody);
-        
+
         $.ajax({
             type: "POST",
             url: '@Url.Action("EditOffer","Offer")',
@@ -163,7 +167,7 @@
                         type: 'success',
                         showProgressbar: true,
                     });
-                setInterval(redirect, 5000); 
+                setInterval(redirect, 5000);
             },
             error: function (response, status, xhr) {
                 errormessages(response.repsponsetext, id);

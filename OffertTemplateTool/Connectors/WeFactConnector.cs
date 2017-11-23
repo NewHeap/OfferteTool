@@ -152,7 +152,6 @@ namespace OffertTemplateTool.Connectors
 
             var response = client.Execute<WeFactResponseModel>(request);
             var offerte = OfferRepository.Find(offerid);
-            offerte.DocumentCode = response.Data.Invoice.Identifier;
             OfferRepository.SaveChanges();
             EditWefactLines(response.Data.Invoice.InvoiceLines, offerid);
 

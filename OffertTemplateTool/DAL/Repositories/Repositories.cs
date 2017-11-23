@@ -54,6 +54,12 @@ namespace OffertTemplateTool.DAL.Repositories
                 return null;
             }
         }
+        public Settings getSpecificSetting(string key)
+        {
+            var settings = GetAll();
+            Settings setting = settings.FirstOrDefault(x => x.Key.Equals(key));
+            return setting;
+        }
     }
     public class OfferRepository : Repository<Offers>
     {
