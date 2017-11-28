@@ -18,6 +18,10 @@ using System.Text;
 using System.Diagnostics;
 using System.Reflection;
 using DinkToPdf;
+using OffertTemplateTool.TemplateSevice;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Hosting;
 
 namespace OffertTemplateTool.Controllers
 {
@@ -31,15 +35,19 @@ namespace OffertTemplateTool.Controllers
         private EstimateConnectsRepository EstimateConnectsRepository { get; set; }
         private SettingsRepository SettingsRepository { get; set; }
         internal WeFactConnector wefactconnector { get; set; }
-        //Application app;
-        //Document doc;
-        //string projectname;
-        //string path = Path.GetTempPath();
+        private IRazorViewEngine _viewEngine;
+        private readonly IServiceProvider _serviceprovider;
+        private readonly ITempDataProvider _tempDataProvider;
+        private TemplateService _templateservice;
+        private readonly IHostingEnvironment _env;
 
         public OfferController(IRepository<Offers> offerrepository, IRepository<Users> userrepository, IRepository<Estimates> estimaterepository,
             IRepository<EstimateLines> estimatlinesrepository, IRepository<EstimateConnects> estimateconnectsrepository,
             IRepository<Settings> settingsrepository,
-            IConnector wefactConnector)
+            IConnector wefactConnector,
+            IHostingEnvironment env, IRazorViewEngine viewEngine,
+            IServiceProvider serviceprovider,
+            ITempDataProvider _tempDataProvider)
         {
             OfferRepository = (OfferRepository)offerrepository;
             UserRepository = (UsersRepository)userrepository;
@@ -48,7 +56,8 @@ namespace OffertTemplateTool.Controllers
             EstimateConnectsRepository = (EstimateConnectsRepository)estimateconnectsrepository;
             SettingsRepository = (SettingsRepository)settingsrepository;
             wefactconnector = (WeFactConnector)wefactConnector;
-
+            _templateservice = new TemplateService(_viewEngine, _serviceprovider, _tempDataProvider);
+            _env = env;
         }
 
         public async Task<IActionResult> Index()
@@ -130,7 +139,7 @@ namespace OffertTemplateTool.Controllers
                 {
                     IndexContent = model.IndexContent,
                     ProjectName = model.ProjectName,
-                    DebtorNumber = model.DebtorNumber,
+                    //DebtorNumber = model.DebtorNumber,
                     CreatedBy = user,
                     CreatedAt = DateTime.Now,
                     LastUpdatedAt = DateTime.Now,
@@ -189,8 +198,8 @@ namespace OffertTemplateTool.Controllers
             {
 
             };
-            var debtorinfo = wefactconnector.GetCustomers();
-            ViewData["debtors"] = debtorinfo;
+            //var debtorinfo = wefactconnector.GetCustomers();
+            //ViewData["debtors"] = debtorinfo;
 
             return View(model);
         }
@@ -271,7 +280,7 @@ namespace OffertTemplateTool.Controllers
                 offer.LastUpdatedAt = DateTime.Now;
                 offer.UpdatedBy = user;
                 offer.ProjectName = model.ProjectName;
-                offer.DebtorNumber = model.DebtorNumber;
+                //offer.DebtorNumber = model.DebtorNumber;
 
                 await OfferRepository.SaveChangesAsync();
 
@@ -339,18 +348,20 @@ namespace OffertTemplateTool.Controllers
                 ProjectName = offer.ProjectName,
                 Estimate = offer.Estimate.Id,
                 Id = offer.Id,
-                DebtorNumber = offer.DebtorNumber
+                //DebtorNumber = offer.DebtorNumber
             };
 
-            var debtorinfo = wefactconnector.GetCustomers(); //get debtors off wefact
-            ViewData["debtors"] = debtorinfo;
+            //var debtorinfo = wefactconnector.GetCustomers(); //get debtors off wefact
+            //ViewData["debtors"] = debtorinfo;
             return View(offerte);
         }
 
         public async Task<IActionResult> ExportOffer()
         {
+            var vm = new OfferRenderViewModel();
+            vm.H1 = "hoi";
             var _converter = new BasicConverter(new PdfTools());
-            string documentcontent = "hallo";
+            string documentcontent = await _templateservice.RenderTemplateAsync<OfferRenderViewModel>(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/OfferteTemplates/Index.cshtml"), vm);
             var output = _converter.Convert(new HtmlToPdfDocument()
             {
                 Objects =

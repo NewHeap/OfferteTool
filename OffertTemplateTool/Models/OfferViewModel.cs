@@ -10,7 +10,6 @@ namespace OffertTemplateTool.Models
     public class OfferViewModel
     {
         public Guid Id { get; set; }
-        [Required]
         public string DebtorNumber { get; set; } // voor WeFact API
         public string DocumentCode { get; set; } // ophalen vanuit WeFact
         [Required]

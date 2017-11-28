@@ -8,6 +8,6 @@ namespace OffertTemplateTool.TemplateSevice
 {
     public interface ITemplateService
     {
-        Task<string> RenderTemplateAsync<TViewModel>(string filename, TViewModel model);
+        Task<string> RenderTemplateAsync<T>(string filename, T model, bool isFullPathProvider = false);
     }
 }

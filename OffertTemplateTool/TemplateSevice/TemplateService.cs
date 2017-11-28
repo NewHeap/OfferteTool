@@ -1,9 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc.Razor;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Hosting;
 
 namespace OffertTemplateTool.TemplateSevice
 {
@@ -11,16 +17,46 @@ namespace OffertTemplateTool.TemplateSevice
     {
         private IRazorViewEngine _viewEngine;
         private readonly IServiceProvider _serviceprovider;
-        private readonly ITempDataProvider _tempDataProvoder;
+        private readonly ITempDataProvider _tempDataProvider;
+        private readonly IHostingEnvironment _env;
         public TemplateService(IRazorViewEngine viewEngine, IServiceProvider serviceProvider, ITempDataProvider tempDataProvider)
         {
             _viewEngine = viewEngine;
             _serviceprovider = serviceProvider;
-            _tempDataProvoder = tempDataProvider;
+            _tempDataProvider = tempDataProvider;
         }
-        public Task<string> RenderTemplateAsync<TViewModel>(string filename, TViewModel model)
+        public async Task<string> RenderTemplateAsync<T>(string filename, T viewmodel, bool isFullPathProvider = false)
         {
-            return null;
+            var httpcontext = new DefaultHttpContext
+            {
+                RequestServices = _serviceprovider
+            };
+
+            var actionContext = new ActionContext(httpcontext, new RouteData(), new ActionDescriptor());
+            using (var outputWriter = new StringWriter())
+            {
+                var ViewResult = _viewEngine.FindView(actionContext, filename, false);
+                if (ViewResult.View == null)
+                {
+                    throw new ArgumentNullException($"{filename} does not match with available view");
+                }
+                var viewDictionary = new ViewDataDictionary<T>(new EmptyModelMetadataProvider(), new ModelStateDictionary())
+                {
+                    Model = viewmodel
+                };
+                var tempDataDictionary = new TempDataDictionary(httpcontext, _tempDataProvider);
+
+                var ViewContext = new ViewContext(
+                    actionContext, 
+                    ViewResult.View, 
+                    viewDictionary, 
+                    tempDataDictionary, 
+                    outputWriter, new HtmlHelperOptions());
+
+                await ViewResult.View.RenderAsync(ViewContext);
+                return outputWriter.ToString();
+            }
+
         }
     }
 }
