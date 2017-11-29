@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OffertTemplateTool.Connectors;
+using OffertTemplateTool.TemplateSevice;
 using DinkToPdf.Contracts;
 using DinkToPdf;
 
@@ -48,6 +49,7 @@ namespace OffertTemplateTool
             services.AddScoped<IRepository<EstimateLines>, EstimateLinesRepository>();
             services.AddScoped<IRepository<EstimateConnects>, EstimateConnectsRepository>();
             services.AddScoped<IConnector, WeFactConnector>();
+            services.AddScoped<ITemplateService, TemplateService>();
 
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 

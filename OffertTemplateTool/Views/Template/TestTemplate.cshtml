@@ -1,0 +1,14 @@
+﻿
+@{
+    Layout = null;
+    ViewData["Title"] = "TestTemplate";
+}
+
+<h2>TestTemplate</h2>
+
+<div>
+    @foreach (var item in Model.EstimateTablePage.EstimateLines)
+    {
+        <div style="float: right; position:absolute !important;">@item.Specification</div>
+    }
+</div>

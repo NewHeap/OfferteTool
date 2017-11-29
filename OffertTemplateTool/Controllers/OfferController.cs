@@ -35,19 +35,15 @@ namespace OffertTemplateTool.Controllers
         private EstimateConnectsRepository EstimateConnectsRepository { get; set; }
         private SettingsRepository SettingsRepository { get; set; }
         internal WeFactConnector wefactconnector { get; set; }
-        private IRazorViewEngine _viewEngine;
-        private readonly IServiceProvider _serviceprovider;
-        private readonly ITempDataProvider _tempDataProvider;
-        private TemplateService _templateservice;
+        private readonly ITemplateService _templateservice;
         private readonly IHostingEnvironment _env;
 
         public OfferController(IRepository<Offers> offerrepository, IRepository<Users> userrepository, IRepository<Estimates> estimaterepository,
             IRepository<EstimateLines> estimatlinesrepository, IRepository<EstimateConnects> estimateconnectsrepository,
             IRepository<Settings> settingsrepository,
             IConnector wefactConnector,
-            IHostingEnvironment env, IRazorViewEngine viewEngine,
-            IServiceProvider serviceprovider,
-            ITempDataProvider _tempDataProvider)
+            IHostingEnvironment env,
+            ITemplateService templateservice)
         {
             OfferRepository = (OfferRepository)offerrepository;
             UserRepository = (UsersRepository)userrepository;
@@ -56,7 +52,7 @@ namespace OffertTemplateTool.Controllers
             EstimateConnectsRepository = (EstimateConnectsRepository)estimateconnectsrepository;
             SettingsRepository = (SettingsRepository)settingsrepository;
             wefactconnector = (WeFactConnector)wefactConnector;
-            _templateservice = new TemplateService(_viewEngine, _serviceprovider, _tempDataProvider);
+            _templateservice = templateservice;
             _env = env;
         }
 
@@ -130,7 +126,7 @@ namespace OffertTemplateTool.Controllers
             if (ModelState.IsValid)
             {
                 Users user = UserRepository.FindUserByEmail(User.Identity.Name);
-                var customer = wefactconnector.GetCustomerInfo(model.DebtorNumber);
+                //var customer = wefactconnector.GetCustomerInfo(model.DebtorNumber);
                 var settingdocument = SettingsRepository.getSpecificSetting("DocumentCode");
                 int documentcode = int.Parse(settingdocument.Value);
                 var code = documentcode.ToString("000");
@@ -356,12 +352,12 @@ namespace OffertTemplateTool.Controllers
             return View(offerte);
         }
 
-        public async Task<IActionResult> ExportOffer()
+        public async Task<IActionResult> ExportOffer(Guid Id , string template)
         {
-            var vm = new OfferRenderViewModel();
-            vm.H1 = "hoi";
+            var viewmodelrender = fillViewModel(Id);
+            OfferRenderViewModel render = await viewmodelrender;
             var _converter = new BasicConverter(new PdfTools());
-            string documentcontent = await _templateservice.RenderTemplateAsync<OfferRenderViewModel>(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/OfferteTemplates/Index.cshtml"), vm);
+            string documentcontent = await _templateservice.RenderTemplateAsync<OfferRenderViewModel>("Template/NewHeapTemplate", render);
             var output = _converter.Convert(new HtmlToPdfDocument()
             {
                 Objects =
@@ -411,75 +407,74 @@ namespace OffertTemplateTool.Controllers
 
             return Redirect("../");
         }
+
+        public async Task<OfferRenderViewModel> fillViewModel(Guid Id)
+        {
+            ICollection<EstimateConnects> Connect;
+            ICollection<Offers> offers;
+
+            using (var context = new DataBaseContext())
+            {
+                offers = context.Offer
+               .Include(offermodel => offermodel.Estimate)
+               .Include(users => users.CreatedBy)
+               .Include(users => users.UpdatedBy)
+                .ToList();
+
+                Connect = context.EstimateConnects
+                .Include(line => line.EstimateLines)
+                .ToList();
+            }
+
+            Offers offer = await OfferRepository.FindAsync(Id);
+            var dboffer = offers.FirstOrDefault(x => x.Id.Equals(Id));
+            var estimate = await EstimateRepository.FindAsync(dboffer.Estimate.Id);
+            var connectlines = Connect.Where(x => x.Estimate.Id.Equals(dboffer.Estimate.Id)).ToList();
+
+            var Page3ViewModel = new Page3ViewModel
+            {
+                CustomerCompany = "",
+                CustomerName = "",
+                CustomerStreet = "",
+                CustomerZipCode = ""
+            };
+
+            var FrontPageViewModel = new FrontPageViewModel
+            {
+                CreatedBy = dboffer.CreatedBy.ToString(),
+                LastUpdated = offer.LastUpdatedAt.ToString(),
+                ProjectName = offer.ProjectName,
+                ProductCode = offer.DocumentCode,
+                CustomerZipCode = "",
+                CustomerStreet = "",
+                CustomerName = "",
+                CustomerCompany = "",
+                CustomerCountry = ""
+
+            };
+
+            var EstimateTablePage = new EstimateTablePage
+            {
+                EstimateConnects = connectlines,
+                BTW = "21.000,00",
+                ExclBtw = "100.000,00",
+                Totaal = "121.000,00"
+            };
+
+            var ContentPages = new ContentPages
+            {
+                Alineas = null
+            };
+
+            var OfferRenderViewModel = new OfferRenderViewModel
+            {
+                ContentPages = ContentPages,
+                EstimateTablePage = EstimateTablePage,
+                FrontPage = FrontPageViewModel,
+                Page3 = Page3ViewModel
+            };
+
+            return OfferRenderViewModel;
+        }
     }
-
-    //public static class DocumentExtensions
-    //{
-    //    //find and replace function 
-    //    public static void FindAndReplace(this Document doc, Application app, string find, string replace, bool indexcontent)
-    //    {
-    //        if (indexcontent == true)
-    //        {
-    //            var h1tags = Regex.Matches(replace, @"<h1>(.|\n)*?</h1>");
-    //            var ptags = Regex.Matches(replace, @"<p>(.|\n)*?</p>");
-    //            var pagebreak = "\f";
-    //            app.Selection.Font.Name = "Calibri";
-    //            app.Selection.Find.Execute(find);
-    //            app.Selection.Style = WdBuiltinStyle.wdStyleHeading1;
-    //            replace = replace.Replace("<h1>", pagebreak + "<h1>");
-    //            app.Selection.TypeText(replace);
-    //            app.Selection.Find.Execute("<h1>");
-    //        }
-    //        else
-    //        {
-    //            app.Selection.Find.Execute(find);
-    //            app.Selection.TypeText(replace);
-    //        }
-    //    }
-
-    //    public static void InsertPageNumbers(this Application app,Document doc, string content)
-    //    {
-    //        app.Selection.Find.Execute("<Index>");
-    //        TableOfContents toc = doc.TablesOfContents.Add(app.Selection.Range, useHeadingStyles: true);
-    //        toc.Update();
-    //    }
-
-    //    public static void ContentStyle(this Application app, int fontsize, int fontbold)
-    //    {
-    //        app.Selection.Font.Size = fontsize;
-    //        app.Selection.Font.Bold = fontbold;
-    //    }
-
-    //    public static void HtmlConverter(string FilePath)
-    //    {
-    //        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-    //        string[] lines = System.IO.File.ReadAllLines(FilePath, Encoding.GetEncoding(1252));
-
-    //        for (int i = 0; i < lines.Length; i++)
-    //        {
-    //            if (lines[i].Contains("&lt;"))
-    //            {
-    //                lines[i] = lines[i].Replace("&lt;", "<");
-    //            }
-    //            if (lines[i].Contains("&gt;"))
-    //            {
-    //                lines[i] = lines[i].Replace("&gt;", ">");
-    //            }
-    //            if (lines[i].Contains("<h1>"))
-    //            {
-    //                lines[i] = lines[i].Replace("<h1>", "<h1 style='top-margin:0cm; color:rgb(232, 79, 29); font-size: 20pt;'>");
-    //            }
-    //            if (lines[i].Contains("<h2>"))
-    //            {
-    //                lines[i] = lines[i].Replace("<h2>", "<h2 style='top-margin:0cm; color:rgb(232, 79, 29); font-size: 15pt;'>");
-    //            }
-    //            if (lines[i].Contains("&amp;"))
-    //            {
-    //                lines[i] = lines[i].Replace("&amp;", "&");
-    //            }
-    //        }
-    //        System.IO.File.WriteAllLines(FilePath, lines, Encoding.GetEncoding(1252));
-
-    //    }
-    //}
 }
