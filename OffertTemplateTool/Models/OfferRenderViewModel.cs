@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OffertTemplateTool.DAL.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace OffertTemplateTool.Models
 {
@@ -31,7 +32,7 @@ namespace OffertTemplateTool.Models
         public string CustomerCountry { get; set; }
         public string ProjectName { get; set; }
         public string LastUpdated { get; set; }
-        public string ProductCode { get; set; }
+        public string DocumentCode { get; set; }
         public string CreatedBy { get; set; }
     }
     public class IndexPage
@@ -41,7 +42,7 @@ namespace OffertTemplateTool.Models
 
     public class ContentPages
     {
-        public List<string> Alineas { get; set; }
+        public List<Match> Alineas { get; set; }
     }
     public class EstimateTablePage
     {

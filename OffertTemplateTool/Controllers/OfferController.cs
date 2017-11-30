@@ -431,25 +431,28 @@ namespace OffertTemplateTool.Controllers
             var estimate = await EstimateRepository.FindAsync(dboffer.Estimate.Id);
             var connectlines = Connect.Where(x => x.Estimate.Id.Equals(dboffer.Estimate.Id)).ToList();
 
+            string[] splits = new string[] { "<h1>", "</p>" };
+            List<Match> alineas = Regex.Matches(offer.IndexContent, @"<h1>(.|\n)*?</p>").ToList();
+
             var Page3ViewModel = new Page3ViewModel
             {
-                CustomerCompany = "",
-                CustomerName = "",
-                CustomerStreet = "",
-                CustomerZipCode = ""
+                CustomerZipCode = "7957Ej",
+                CustomerStreet = "Oosterakker 21",
+                CustomerName = "K.Broekstra",
+                CustomerCompany = "Broekstra B.V."
             };
 
             var FrontPageViewModel = new FrontPageViewModel
             {
-                CreatedBy = dboffer.CreatedBy.ToString(),
+                CreatedBy = dboffer.CreatedBy.FirstName + " " + dboffer.CreatedBy.LastName,
                 LastUpdated = offer.LastUpdatedAt.ToString(),
                 ProjectName = offer.ProjectName,
-                ProductCode = offer.DocumentCode,
-                CustomerZipCode = "",
-                CustomerStreet = "",
-                CustomerName = "",
-                CustomerCompany = "",
-                CustomerCountry = ""
+                DocumentCode = offer.DocumentCode,
+                CustomerZipCode = "7957Ej",
+                CustomerStreet = "Oosterakker 21",
+                CustomerName = "K.Broekstra",
+                CustomerCompany = "Broekstra B.V.",
+                CustomerCountry = "Netherlands"
 
             };
 
@@ -463,7 +466,7 @@ namespace OffertTemplateTool.Controllers
 
             var ContentPages = new ContentPages
             {
-                Alineas = null
+                Alineas = alineas
             };
 
             var OfferRenderViewModel = new OfferRenderViewModel
