@@ -20,6 +20,7 @@ namespace OffertTemplateTool.Models
         public DateTime? LastUpdatedAt { get; set; } // Elke x updaten
         public string IndexContent { get; set; } // Html text veld
         public Guid Estimate { get; set; } // Html text veld
+        public int DocumentVersion { get; set; }
        
         public ICollection<EstimateLinesViewModel> EstimateLines { get; set; }
        

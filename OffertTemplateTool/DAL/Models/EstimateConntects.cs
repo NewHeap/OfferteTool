@@ -8,6 +8,8 @@ namespace OffertTemplateTool.DAL.Models
 {
     public class EstimateConnects : IDb
     {
+        internal object estimateline;
+
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
         public virtual Estimates Estimate { get; set; }

@@ -19,6 +19,8 @@ namespace OffertTemplateTool.DAL.Models
         public virtual Estimates Estimate { get; set; } // Html text veld
         [DefaultValue(0)]
         public int IsOpen { get; set; }
+        [DefaultValue(1)]
+        public int DocumentVersion { get; set; }
 
     }
 }

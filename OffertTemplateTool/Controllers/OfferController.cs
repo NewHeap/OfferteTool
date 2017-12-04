@@ -7,20 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 using OffertTemplateTool.Models;
 using OffertTemplateTool.DAL.Models;
 using OffertTemplateTool.DAL.Repositories;
-using OffertTemplateTool.DAL;
 using OffertTemplateTool.DAL.Context;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using OffertTemplateTool.Connectors;
 using Microsoft.AspNetCore.Authorization;
-using System.Text;
-using System.Diagnostics;
-using System.Reflection;
 using DinkToPdf;
 using OffertTemplateTool.TemplateSevice;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Hosting;
 
 namespace OffertTemplateTool.Controllers
@@ -34,7 +28,7 @@ namespace OffertTemplateTool.Controllers
         private EstimateLinesRepository EstimateLinesRepository { get; set; }
         private EstimateConnectsRepository EstimateConnectsRepository { get; set; }
         private SettingsRepository SettingsRepository { get; set; }
-        internal WeFactConnector wefactconnector { get; set; }
+        internal WeFactConnector Wefactconnector { get; set; }
         private readonly ITemplateService _templateservice;
         private readonly IHostingEnvironment _env;
 
@@ -51,13 +45,13 @@ namespace OffertTemplateTool.Controllers
             EstimateLinesRepository = (EstimateLinesRepository)estimatlinesrepository;
             EstimateConnectsRepository = (EstimateConnectsRepository)estimateconnectsrepository;
             SettingsRepository = (SettingsRepository)settingsrepository;
-            wefactconnector = (WeFactConnector)wefactConnector;
+            Wefactconnector = (WeFactConnector)wefactConnector;
             _templateservice = templateservice;
             _env = env;
         }
 
         public async Task<IActionResult> Index()
-        {
+        {;
             if (User.Identity.Name != null)
             {
                 var offertes = await OfferRepository.GetAllAsync();
@@ -212,6 +206,7 @@ namespace OffertTemplateTool.Controllers
             {
                 ICollection<EstimateConnects> Connect;
                 ICollection<Offers> offers;
+                
 
                 using (var context = new DataBaseContext())
                 {
@@ -226,7 +221,7 @@ namespace OffertTemplateTool.Controllers
                     .ToList();
                 }
 
-                Offers offer = await OfferRepository.FindAsync((System.Guid)model.Id);
+                Offers offer = await OfferRepository.FindAsync(model.Id);
                 var dboffer = offers.FirstOrDefault(x => x.Id.Equals(model.Id));
                 Users user = UserRepository.FindUserByEmail(User.Identity.Name);
                 var estimate = await EstimateRepository.FindAsync(dboffer.Estimate.Id);
@@ -276,6 +271,7 @@ namespace OffertTemplateTool.Controllers
                 offer.LastUpdatedAt = DateTime.Now;
                 offer.UpdatedBy = user;
                 offer.ProjectName = model.ProjectName;
+                offer.DocumentVersion = offer.DocumentVersion+1;
                 //offer.DebtorNumber = model.DebtorNumber;
 
                 await OfferRepository.SaveChangesAsync();
@@ -354,10 +350,10 @@ namespace OffertTemplateTool.Controllers
 
         public async Task<IActionResult> ExportOffer(Guid Id , string template)
         {
-            var viewmodelrender = fillViewModel(Id);
+            var viewmodelrender = FillViewModel(Id);
             OfferRenderViewModel render = await viewmodelrender;
             var _converter = new BasicConverter(new PdfTools());
-            string documentcontent = await _templateservice.RenderTemplateAsync<OfferRenderViewModel>("Template/NewHeapTemplate", render);
+            string documentcontent = await _templateservice.RenderTemplateAsync("Template/NewHeapTemplate", render);
             var output = _converter.Convert(new HtmlToPdfDocument()
             {
                 Objects =
@@ -368,7 +364,7 @@ namespace OffertTemplateTool.Controllers
                     }
                 }
             });
-
+            
             Response.Clear();
             Response.ContentType = "Application/pdf";
             Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=OfferTEst.pdf;"));
@@ -408,7 +404,7 @@ namespace OffertTemplateTool.Controllers
             return Redirect("../");
         }
 
-        public async Task<OfferRenderViewModel> fillViewModel(Guid Id)
+        public async Task<OfferRenderViewModel> FillViewModel(Guid Id)
         {
             ICollection<EstimateConnects> Connect;
             ICollection<Offers> offers;
@@ -436,10 +432,12 @@ namespace OffertTemplateTool.Controllers
 
             var Page3ViewModel = new Page3ViewModel
             {
-                CustomerZipCode = "7957Ej",
+                CustomerZipCode = "7957EJ",
                 CustomerStreet = "Oosterakker 21",
                 CustomerName = "K.Broekstra",
-                CustomerCompany = "Broekstra B.V."
+                CustomerCompany = "Broekstra B.V.",
+                CustomerEmail = "test@test.te",
+                DocumentVersion = offer.DocumentVersion
             };
 
             var FrontPageViewModel = new FrontPageViewModel
@@ -448,22 +446,48 @@ namespace OffertTemplateTool.Controllers
                 LastUpdated = offer.LastUpdatedAt.ToString(),
                 ProjectName = offer.ProjectName,
                 DocumentCode = offer.DocumentCode,
-                CustomerZipCode = "7957Ej",
+                CustomerZipCode = "7957EJ",
                 CustomerStreet = "Oosterakker 21",
                 CustomerName = "K.Broekstra",
                 CustomerCompany = "Broekstra B.V.",
                 CustomerCountry = "Netherlands"
-
             };
+
+            List<string> indexlist = new List<string>();
+            List<string> h2item = new List<string>();
+            foreach (var item in alineas)
+            {
+                var indexitem = Regex.Matches(item.ToString(), @"<h1>(.|\n)*?</h1>").ToList();
+                var replaceindexitem = "";
+                foreach (var h1 in indexitem)
+                {
+                    replaceindexitem = Regex.Replace(h1.ToString(), @"<[^>]*>", "");
+                }
+                indexlist.Add(replaceindexitem);
+            }
+
+            var IndexPage = new IndexPage
+            {
+                IndexItems = indexlist
+            };
+
+            float exclbtw = 0;
+            float btw = 0;
+            float totalcost = 0;
+            foreach (var item in connectlines)
+            {
+                exclbtw = exclbtw + item.EstimateLines.TotalCost;
+            }
+            btw = exclbtw / 100 * 21;
+            totalcost = exclbtw + btw;
 
             var EstimateTablePage = new EstimateTablePage
             {
                 EstimateConnects = connectlines,
-                BTW = "21.000,00",
-                ExclBtw = "100.000,00",
-                Totaal = "121.000,00"
+                BTW = btw.ToString("#,##0.00"),
+                ExclBtw = exclbtw.ToString("#,##0.00"),
+                Totaal = totalcost.ToString("#,##0.00")
             };
-
             var ContentPages = new ContentPages
             {
                 Alineas = alineas
@@ -474,7 +498,8 @@ namespace OffertTemplateTool.Controllers
                 ContentPages = ContentPages,
                 EstimateTablePage = EstimateTablePage,
                 FrontPage = FrontPageViewModel,
-                Page3 = Page3ViewModel
+                Page3 = Page3ViewModel,
+                IndexPage = IndexPage
             };
 
             return OfferRenderViewModel;
