@@ -13,6 +13,7 @@ namespace OffertTemplateTool.Models
         public Page3ViewModel Page3 { get; set; }
         public ContentPages ContentPages { get; set; }
         public EstimateTablePage EstimateTablePage { get; set; }
+        public IndexPage IndexPage { get; set; }
     }
 
     public class Page3ViewModel
@@ -21,6 +22,8 @@ namespace OffertTemplateTool.Models
         public string CustomerName { get; set; }
         public string CustomerStreet { get; set; }
         public string CustomerZipCode { get; set; }
+        public string CustomerEmail { get; set; }
+        public int DocumentVersion { get; set; }
     }
 
     public class FrontPageViewModel

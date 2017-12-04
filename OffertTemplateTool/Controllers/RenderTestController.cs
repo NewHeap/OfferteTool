@@ -53,7 +53,6 @@ namespace OffertTemplateTool.Controllers
                         PagesCount = true,
                         HtmlContent = html,
                         WebSettings = { DefaultEncoding = "utf-8" },
-                        FooterSettings = {Center = "Center", HtmUrl = @"C:\Users\krisb\Source\Repos\OfferteTool\OffertTemplateTool\Views\Template\FooterTemplate" }
                     }
                 }
             };
