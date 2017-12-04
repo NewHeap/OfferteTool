@@ -21,10 +21,10 @@
 
         <label>Company:</label>
         <select class="form-control company" asp-for="DebtorNumber" style="width:15%;">
-            @foreach (var item in debtor)
+            @*@foreach (var item in debtor)
             {
                 <option value="@item.DebtorCode">@item.CompanyName</option>
-            }
+            }*@
         </select>
         <br />
 
@@ -79,9 +79,10 @@
         );
         id++;
         return;
-    });
+        });
 
     $(".Save-offerte").click(function (e) {
+        $(".Save-offerte").prop('disable', true);
         saveAll();
         return;
     });
