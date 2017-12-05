@@ -16,28 +16,34 @@ using Microsoft.AspNetCore.Authorization;
 using DinkToPdf;
 using OffertTemplateTool.TemplateSevice;
 using Microsoft.AspNetCore.Hosting;
+using DinkToPdf.Contracts;
 
 namespace OffertTemplateTool.Controllers
 {
     [Authorize]
     public class OfferController : Controller
     {
-        private OfferRepository OfferRepository { get; set; }
-        private UsersRepository UserRepository { get; set; }
-        private EstimateRepository EstimateRepository { get; set; }
-        private EstimateLinesRepository EstimateLinesRepository { get; set; }
-        private EstimateConnectsRepository EstimateConnectsRepository { get; set; }
-        private SettingsRepository SettingsRepository { get; set; }
-        internal WeFactConnector Wefactconnector { get; set; }
-        private readonly ITemplateService _templateservice;
-        private readonly IHostingEnvironment _env;
+        protected readonly OfferRepository OfferRepository;
+        protected readonly UsersRepository UserRepository;
+        protected readonly EstimateRepository EstimateRepository;
+        protected readonly EstimateLinesRepository EstimateLinesRepository;
+        protected readonly EstimateConnectsRepository EstimateConnectsRepository;
+        protected readonly SettingsRepository SettingsRepository;
+        protected readonly WeFactConnector Wefactconnector;
+        protected readonly ITemplateService TemplateService;
+        protected readonly IHostingEnvironment Environment;
+        protected readonly IConverter ConverterService;
 
-        public OfferController(IRepository<Offers> offerrepository, IRepository<Users> userrepository, IRepository<Estimates> estimaterepository,
-            IRepository<EstimateLines> estimatlinesrepository, IRepository<EstimateConnects> estimateconnectsrepository,
+        public OfferController(IRepository<Offers> offerrepository, 
+            IRepository<Users> userrepository, 
+            IRepository<Estimates> estimaterepository,
+            IRepository<EstimateLines> estimatlinesrepository, 
+            IRepository<EstimateConnects> estimateconnectsrepository,
             IRepository<Settings> settingsrepository,
             IConnector wefactConnector,
             IHostingEnvironment env,
-            ITemplateService templateservice)
+            ITemplateService templateservice,
+            IConverter converterService)
         {
             OfferRepository = (OfferRepository)offerrepository;
             UserRepository = (UsersRepository)userrepository;
@@ -46,8 +52,9 @@ namespace OffertTemplateTool.Controllers
             EstimateConnectsRepository = (EstimateConnectsRepository)estimateconnectsrepository;
             SettingsRepository = (SettingsRepository)settingsrepository;
             Wefactconnector = (WeFactConnector)wefactConnector;
-            _templateservice = templateservice;
-            _env = env;
+            TemplateService = templateservice;
+            Environment = env;
+            ConverterService = converterService;
         }
 
         public async Task<IActionResult> Index()
@@ -350,18 +357,13 @@ namespace OffertTemplateTool.Controllers
 
         public async Task<IActionResult> ExportOffer(Guid Id , string template)
         {
-
-            var viewmodelrender = FillViewModel(Id);
-            OfferRenderViewModel render = await viewmodelrender;
-            var _converter = new BasicConverter(new PdfTools());
-            string documentcontent = await _templateservice.RenderTemplateAsync("Template/NewHeapTemplate", render);
-            var output = _converter.Convert(new HtmlToPdfDocument()
+            var viewmodelrender = await FillViewModel(Id);
+            string documentcontent = await TemplateService.RenderTemplateAsync("Template/NewHeapTemplate", viewmodelrender);
+            byte[] output = ConverterService.Convert(new HtmlToPdfDocument()
             {
-                Objects =
-                {
-                    new ObjectSettings()
-                    {
-                        HtmlContent = documentcontent
+                Objects = {
+                    new ObjectSettings() {
+                        HtmlContent = documentcontent,
                     }
                 }
             });
@@ -372,7 +374,6 @@ namespace OffertTemplateTool.Controllers
             await Response.Body.WriteAsync(output, 0, output.Length);
             return Redirect(nameof(Index));
         }
-
         public async Task<IActionResult> DeleteOffer(System.Guid Id)
         {
             ICollection<Offers> offers;
