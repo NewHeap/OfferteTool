@@ -21,7 +21,7 @@
 
 .side-bar {
     margin: 1%;
-    padding: 0% !important;
+    padding: 0 !important;
 }
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
@@ -78,10 +78,10 @@
     float: right;
 }
 
-    .cancel-button a {
-        text-decoration: none;
-        color: white;
-    }
+.cancel-button a {
+    text-decoration: none;
+    color: white;
+}
 
 .cancel-href {
     text-decoration: none;
@@ -110,13 +110,13 @@
 }
 
 h2 {
-    margin: 0px;
+    margin: 0;
     margin-bottom: 1%;
     color: rgb(232, 79, 29);
 }
 
 h1 {
-    margin: 0px;
+    margin: 0;
     margin-bottom: 1%;
     color: rgb(232, 79, 29);
 }
@@ -130,18 +130,18 @@ h3 {
     cursor: pointer !important;
 }
 
-    .Sub-Drop.active .nav {
-        display: block;
-        background-color: #EEEEEE;
-        font-weight: bold;
-    }
+.Sub-Drop.active .nav {
+    display: block;
+    background-color: #EEEEEE;
+    font-weight: bold;
+}
 
-    .Sub-Drop .nav {
-        display: none;
-        background-color: white;
-        font-weight: normal;
-    }
+.Sub-Drop .nav {
+    display: none;
+    background-color: white;
+    font-weight: normal;
+}
 
-    .Sub-Drop span {
-        float: right;
-    }
+.Sub-Drop span {
+    float: right;
+}

@@ -14,7 +14,7 @@
 </div>
 <div class="row">
     <div class="col-md-9">
-        <button class="btn btn-danger cancel-button"><a href="../">Cancel</a></button>
+        <a class="btn btn-danger cancel-button" href="../">Cancel</a>
         <input type="submit" name="Save" class="btn btn-success Save-offerte" value="Save Offerte" /> <br />
         <label>ProjectName:</label> <br />
         <div class="row">
@@ -23,16 +23,11 @@
             </div>
         </div>
         <label>Company:</label>
-        <select class="form-control company" asp-for="DebtorNumber" style="width:15%;">
-            @foreach (var item in debtor)
-            {
-                <option value="@item.DebtorCode">@item.CompanyName</option>
-            }
-        </select>
+       
         <br />
 
         <label>IndexContent:</label>
-<textarea asp-for="IndexContent" class="summernote" name="IndexContent"></textarea>
+            <textarea asp-for="IndexContent" class="summernote form-control" name="IndexContent"></textarea>
         <label>estimate:</label>
         <a class="new">New Line</a>
         <div class="row">
@@ -113,7 +108,7 @@
     });
 
     $(".Save-offerte").click(function (e) {
-
+        $("input").prop('disabled', true);
         saveAll();
         return;
     });

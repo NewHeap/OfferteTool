@@ -350,6 +350,7 @@ namespace OffertTemplateTool.Controllers
 
         public async Task<IActionResult> ExportOffer(Guid Id , string template)
         {
+
             var viewmodelrender = FillViewModel(Id);
             OfferRenderViewModel render = await viewmodelrender;
             var _converter = new BasicConverter(new PdfTools());
@@ -364,13 +365,11 @@ namespace OffertTemplateTool.Controllers
                     }
                 }
             });
-            
             Response.Clear();
             Response.ContentType = "Application/pdf";
             Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=OfferTEst.pdf;"));
             Response.Headers.Add("Content-Length", output.Length.ToString());
             await Response.Body.WriteAsync(output, 0, output.Length);
-            Response.Clear();
             return Redirect(nameof(Index));
         }
 
@@ -450,11 +449,10 @@ namespace OffertTemplateTool.Controllers
                 CustomerStreet = "Oosterakker 21",
                 CustomerName = "K.Broekstra",
                 CustomerCompany = "Broekstra B.V.",
-                CustomerCountry = "Netherlands"
+                CustomerCountry = "The Netherlands"
             };
 
             List<string> indexlist = new List<string>();
-            List<string> h2item = new List<string>();
             foreach (var item in alineas)
             {
                 var indexitem = Regex.Matches(item.ToString(), @"<h1>(.|\n)*?</h1>").ToList();
