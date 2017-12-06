@@ -14,27 +14,36 @@ using System.Text.RegularExpressions;
 using OffertTemplateTool.Connectors;
 using Microsoft.AspNetCore.Authorization;
 using DinkToPdf;
-using OffertTemplateTool.TemplateService;
+using OffertTemplateTool.TemplateSevice;
 using Microsoft.AspNetCore.Hosting;
+using DinkToPdf.Contracts;
 
 namespace OffertTemplateTool.Controllers
 {
     [Authorize]
     public class OfferController : Controller
     {
-        private OfferRepository OfferRepository { get; set; }
-        private UsersRepository UserRepository { get; set; }
-        private EstimateRepository EstimateRepository { get; set; }
-        private EstimateLinesRepository EstimateLinesRepository { get; set; }
-        private EstimateConnectsRepository EstimateConnectsRepository { get; set; }
-        private SettingsRepository SettingsRepository { get; set; }
-        internal WeFactConnector Wefactconnector { get; set; }
-        private readonly ITemplateService _templateservice;
-        public OfferController(IRepository<Offers> offerrepository, IRepository<Users> userrepository, IRepository<Estimates> estimaterepository,
-            IRepository<EstimateLines> estimatlinesrepository, IRepository<EstimateConnects> estimateconnectsrepository,
+        protected readonly OfferRepository OfferRepository;
+        protected readonly UsersRepository UserRepository;
+        protected readonly EstimateRepository EstimateRepository;
+        protected readonly EstimateLinesRepository EstimateLinesRepository;
+        protected readonly EstimateConnectsRepository EstimateConnectsRepository;
+        protected readonly SettingsRepository SettingsRepository;
+        protected readonly WeFactConnector Wefactconnector;
+        protected readonly ITemplateService TemplateService;
+        protected readonly IHostingEnvironment Environment;
+        protected readonly IConverter ConverterService;
+
+        public OfferController(IRepository<Offers> offerrepository, 
+            IRepository<Users> userrepository, 
+            IRepository<Estimates> estimaterepository,
+            IRepository<EstimateLines> estimatlinesrepository, 
+            IRepository<EstimateConnects> estimateconnectsrepository,
             IRepository<Settings> settingsrepository,
             IConnector wefactConnector,
-            ITemplateService templateservice)
+            IHostingEnvironment env,
+            ITemplateService templateservice,
+            IConverter converterService)
         {
             OfferRepository = (OfferRepository)offerrepository;
             UserRepository = (UsersRepository)userrepository;
@@ -43,7 +52,9 @@ namespace OffertTemplateTool.Controllers
             EstimateConnectsRepository = (EstimateConnectsRepository)estimateconnectsrepository;
             SettingsRepository = (SettingsRepository)settingsrepository;
             Wefactconnector = (WeFactConnector)wefactConnector;
-            _templateservice = templateservice;
+            TemplateService = templateservice;
+            Environment = env;
+            ConverterService = converterService;
         }
 
         public async Task<IActionResult> Index()
@@ -130,8 +141,7 @@ namespace OffertTemplateTool.Controllers
                     CreatedAt = DateTime.Now,
                     LastUpdatedAt = DateTime.Now,
                     UpdatedBy = user,
-                    DocumentCode = "PV" + code,
-                    DocumentVersion = 1
+                    DocumentCode = "PV" + code
                 };
 
                 await OfferRepository.AddAsync(offerte);
@@ -347,43 +357,25 @@ namespace OffertTemplateTool.Controllers
 
         public async Task<IActionResult> ExportOffer(Guid Id , string template)
         {
-            var viewmodelrender = FillViewModel(Id);
-            var offer = await OfferRepository.FindAsync(Id);
-            OfferRenderViewModel render = await viewmodelrender;
-            var _converter = new BasicConverter(new PdfTools());
-            string documentcontent = await _templateservice.RenderTemplateAsync("Template/NewHeapTemplate", render);
-            var output = _converter.Convert(new HtmlToPdfDocument()
+            var viewmodelrender = await FillViewModel(Id);
+            string documentcontent = await TemplateService.RenderTemplateAsync("Template/NewHeapTemplate", viewmodelrender);
+            byte[] output = ConverterService.Convert(new HtmlToPdfDocument()
             {
-                GlobalSettings =
-                {
-                    
-                },
-                Objects =
-                {
-                    new ObjectSettings()
-                    {
+                Objects = {
+                    new ObjectSettings() {
                         HtmlContent = documentcontent,
-                        FooterSettings = new FooterSettings
-                        {
-                            Right = "[page]"
-                        },
-                        PagesCount = true,
-                      
                     }
                 }
             });
-            
+            Response.Clear();
             Response.ContentType = "Application/pdf";
-            Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName="+ offer.ProjectName +".pdf;"));
+            Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=OfferTEst.pdf;"));
             Response.Headers.Add("Content-Length", output.Length.ToString());
             await Response.Body.WriteAsync(output, 0, output.Length);
-            Response.Clear();
             return Redirect(nameof(Index));
         }
-
         public async Task<IActionResult> DeleteOffer(System.Guid Id)
         {
-            
             ICollection<Offers> offers;
             ICollection<EstimateConnects> Connect;
             using (var context = new DataBaseContext())
@@ -435,15 +427,8 @@ namespace OffertTemplateTool.Controllers
             var estimate = await EstimateRepository.FindAsync(dboffer.Estimate.Id);
             var connectlines = Connect.Where(x => x.Estimate.Id.Equals(dboffer.Estimate.Id)).ToList();
 
-            //string[] delimiterChars = {"<h1>" };
-            //string[] alineas = offer.IndexContent.Split(delimiterChars, StringSplitOptions.RemoveEmptyEntries);
-
-                     
-
-
-            List<Match> alineas = Regex.Matches(offer.IndexContent, @"<h1(.*?)<h1").ToList();
-            AlineaCollector Collector = new AlineaCollector(alineas);
-            var ContentList = Collector.CreateTableOfContents();
+            string[] splits = new string[] { "<h1>", "</p>" };
+            List<Match> alineas = Regex.Matches(offer.IndexContent, @"<h1>(.|\n)*?</p>").ToList();
 
             var Page3ViewModel = new Page3ViewModel
             {
@@ -465,11 +450,10 @@ namespace OffertTemplateTool.Controllers
                 CustomerStreet = "Oosterakker 21",
                 CustomerName = "K.Broekstra",
                 CustomerCompany = "Broekstra B.V.",
-                CustomerCountry = "Netherlands"
+                CustomerCountry = "The Netherlands"
             };
 
             List<string> indexlist = new List<string>();
-            List<string> h2item = new List<string>();
             foreach (var item in alineas)
             {
                 var indexitem = Regex.Matches(item.ToString(), @"<h1>(.|\n)*?</h1>").ToList();
@@ -505,7 +489,7 @@ namespace OffertTemplateTool.Controllers
             };
             var ContentPages = new ContentPages
             {
-                //Alineas = alineas
+                Alineas = alineas
             };
 
             var OfferRenderViewModel = new OfferRenderViewModel

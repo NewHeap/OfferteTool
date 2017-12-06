@@ -58,7 +58,7 @@
                     <td>@item.Value</td>
                     <td>
                         <button id="edit_@id" class="btn btn-primary btn-modal edit" data-id="@item.Id" data-toggle="modal" data-target="#myModal" style="margin-top:0px !important;">Edit</button>
-                        <button class="btn btn-danger" style="float:right;">@Html.ActionLink("Delete", "Delete", "Settings", new { id = item.Id })</button>
+                        <a class="btn btn-danger" style="float:right;" href="@Url.Action("Delete", "Settings", new { id = item.Id })">Delete</a>
                     </td>
                 </tr>
                 id++;
