@@ -3,7 +3,8 @@
     ViewData["Title"] = "Home Page";
     int templatenumber = 0;
     int rownumber = 0;
-    List<string> files = (List<string>)ViewData["templates"];
+    var templates = (List<string>)ViewData["templates"];
+    List<OfferViewModel> offertes = (List<OfferViewModel>)ViewData["offertes"];
     List<Offers> openoffer = (List<Offers>)ViewData["open"];
     List<Offers> exportedoffer = (List<Offers>)ViewData["exported"];
 }
@@ -84,7 +85,7 @@
         <div class="row">
             <div class="col-md-12">
                 <table class="table table-striped">
-                    @foreach (var item in files)
+                    @foreach (var item in templates)
                     {
                         templatenumber++;
                         <tr>

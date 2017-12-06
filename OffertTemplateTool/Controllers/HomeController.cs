@@ -48,12 +48,12 @@ namespace OffertTemplateTool.Controllers
                 ViewData["open"] = offeropen;
                 ViewData["exported"] = offerexported;
 
-                var files = Directory.GetFiles(@"wwwroot/OfferteTemplates/")
+                var files = Directory.GetFiles(@"Views/Template/")
                     .Select(Path.GetFileName)
                     .ToArray();
                 foreach (var item in files)
                 {
-                    var file = item.Replace(".docx", "");
+                    var file = item.Replace(".cshtml", "");
                     if (file[0].ToString() != "~" && file[1].ToString() != "$")
                     {
                         templates.Add(file);
@@ -85,7 +85,7 @@ namespace OffertTemplateTool.Controllers
 
         public IActionResult DeleteTemplate(string filename)
         {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/OfferteTemplates/" + filename + ".docx");
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "Views/Template/" + filename + ".docx");
             if (System.IO.File.Exists(path))
             {
                 System.IO.File.Delete(path);

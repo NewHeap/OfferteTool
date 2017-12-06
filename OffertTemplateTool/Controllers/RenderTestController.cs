@@ -40,7 +40,7 @@ namespace OffertTemplateTool.Controllers
                     ProjectName = "Test"
                 }
             };
-            var html = await TemplateService.RenderTemplateAsync<OfferRenderViewModel>("Template/NewHeapTemplate", vm);
+            var html = await TemplateService.RenderTemplateAsync("Template/NewHeapTemplate", vm);
             var doc = new HtmlToPdfDocument()
             {
                  GlobalSettings = {
@@ -61,7 +61,7 @@ namespace OffertTemplateTool.Controllers
 
             Response.Clear();
             Response.ContentType = "Application/pdf";
-            Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=OfferTEst.pdf;"));
+            Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=Offer.pdf;"));
             Response.Headers.Add("Content-Length", pdf.Length.ToString());
             await Response.Body.WriteAsync(pdf, 0, pdf.Length);
             Response.Clear();
