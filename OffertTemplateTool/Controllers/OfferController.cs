@@ -35,7 +35,8 @@ namespace OffertTemplateTool.Controllers
         protected readonly IConverter ConverterService;
 
         public OfferController(IRepository<Offers> offerrepository, 
-            IRepository<Users> userrepository, 
+            IRepository<Users> userrepository,
+            IRepository<Offers> offerrepoitory,
             IRepository<Estimates> estimaterepository,
             IRepository<EstimateLines> estimatlinesrepository, 
             IRepository<EstimateConnects> estimateconnectsrepository,
@@ -73,12 +74,12 @@ namespace OffertTemplateTool.Controllers
                 }).ToList();
 
                 List<string> templates = new List<string>();
-                var files = Directory.GetFiles(@"wwwroot/OfferteTemplates/")
+                var files = Directory.GetFiles(@"Views/Template/")
                     .Select(Path.GetFileName)
                     .ToArray();
                 foreach (var item in files)
                 {
-                    var file = item.Replace(".docx", "");
+                    var file = item.Replace(".cshtml", "");
                     if (file[0].ToString() != "~" && file[1].ToString() != "$")
                     {
                         templates.Add(file);
@@ -104,7 +105,7 @@ namespace OffertTemplateTool.Controllers
             }
             else
             {
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/OfferteTemplates",
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Views/Template/",
                     file.FileName);
 
                 using (var stream = new FileStream(path, FileMode.Create))
@@ -357,8 +358,9 @@ namespace OffertTemplateTool.Controllers
 
         public async Task<IActionResult> ExportOffer(Guid Id , string template)
         {
+            var offer = await OfferRepository.FindAsync(Id);
             var viewmodelrender = await FillViewModel(Id);
-            string documentcontent = await TemplateService.RenderTemplateAsync("Template/NewHeapTemplate", viewmodelrender);
+            string documentcontent = await TemplateService.RenderTemplateAsync("Template/"+template, viewmodelrender);
             byte[] output = ConverterService.Convert(new HtmlToPdfDocument()
             {
                 Objects = {
@@ -369,12 +371,12 @@ namespace OffertTemplateTool.Controllers
             });
             Response.Clear();
             Response.ContentType = "Application/pdf";
-            Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=OfferTEst.pdf;"));
+            Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=Offer_"+offer.ProjectName+ ".pdf;"));
             Response.Headers.Add("Content-Length", output.Length.ToString());
             await Response.Body.WriteAsync(output, 0, output.Length);
             return Redirect(nameof(Index));
         }
-        public async Task<IActionResult> DeleteOffer(System.Guid Id)
+        public async Task<IActionResult> DeleteOffer(Guid Id)
         {
             ICollection<Offers> offers;
             ICollection<EstimateConnects> Connect;
