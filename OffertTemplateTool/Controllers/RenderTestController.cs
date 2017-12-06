@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using OffertTemplateTool.TemplateSevice;
+using OffertTemplateTool.TemplateService;
 using OffertTemplateTool.Models;
 using DinkToPdf;
 using Microsoft.AspNetCore.Http;

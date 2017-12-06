@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using OffertTemplateTool.Models;
 
-namespace OffertTemplateTool.TemplateSevice
+namespace OffertTemplateTool.TemplateService
 {
     public interface ITemplateService
     {

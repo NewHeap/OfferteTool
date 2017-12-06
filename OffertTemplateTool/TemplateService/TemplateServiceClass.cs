@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Hosting;
 
-namespace OffertTemplateTool.TemplateSevice
+namespace OffertTemplateTool.TemplateService
 {
-    public class TemplateService : ITemplateService
+    public class TemplateServiceClass : ITemplateService
     {
         private IRazorViewEngine _viewEngine;
         private readonly IServiceProvider _serviceprovider;
         private readonly ITempDataProvider _tempDataProvider;
         private readonly IHostingEnvironment _env;
-        public TemplateService(IRazorViewEngine viewEngine, IServiceProvider serviceProvider, ITempDataProvider tempDataProvider)
+        public TemplateServiceClass(IRazorViewEngine viewEngine, IServiceProvider serviceProvider, ITempDataProvider tempDataProvider)
         {
             _viewEngine = viewEngine;
             _serviceprovider = serviceProvider;

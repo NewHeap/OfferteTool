@@ -33,7 +33,6 @@ namespace OffertTemplateTool.Controllers
             List<Offers> offerexported = new List<Offers>();
             if (UsersRepository.AnyUserByEmail(User.Identity.Name) == true)
             {
-                
                 var offers = await OfferRepository.GetAllAsync();
                 foreach (var item in offers)
                 {
