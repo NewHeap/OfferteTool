@@ -14,6 +14,7 @@ namespace OffertTemplateTool.Models
         public ContentPages ContentPages { get; set; }
         public EstimateTablePage EstimateTablePage { get; set; }
         public IndexPage IndexPage { get; set; }
+        public string FooterContent { get; set; }
     }
 
     public class Page3ViewModel
@@ -40,7 +41,7 @@ namespace OffertTemplateTool.Models
     }
     public class IndexPage
     {
-        public List<string> IndexItems { get; set; }
+        public List<Dictionary<string, int>> IndexItems { get; set; }
     }
 
     public class ContentPages
@@ -54,5 +55,12 @@ namespace OffertTemplateTool.Models
         public string ExclBtw { get; set; }
         public string BTW { get; set; }
         public string Totaal { get; set; }
+    }
+
+    public class Footer
+    {
+        public string KvK { get; set; }
+        public string Bank { get; set; }
+        public string BTW { get; set; }
     }
 }
