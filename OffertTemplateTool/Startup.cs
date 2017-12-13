@@ -1,20 +1,20 @@
-﻿using OffertTemplateTool.DAL.Context;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using OffertTemplateTool.Connectors;
 using OffertTemplateTool.DAL.Models;
+using OffertTemplateTool.DAL.Context;
+using OffertTemplateTool.TemplateService;
 using OffertTemplateTool.DAL.Repositories;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OffertTemplateTool.Connectors;
-using OffertTemplateTool.TemplateSevice;
-using DinkToPdf.Contracts;
 using DinkToPdf;
-using System.Threading.Tasks;
-using System;
-using System.Linq;
+using DinkToPdf.Contracts;
 
 namespace OffertTemplateTool
 {
@@ -49,7 +49,7 @@ namespace OffertTemplateTool
             services.AddScoped<IRepository<EstimateLines>, EstimateLinesRepository>();
             services.AddScoped<IRepository<EstimateConnects>, EstimateConnectsRepository>();
             services.AddScoped<IConnector, WeFactConnector>();
-            services.AddScoped<ITemplateService, TemplateService>();
+            services.AddScoped<ITemplateService, TemplateServiceClass>();
 
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 

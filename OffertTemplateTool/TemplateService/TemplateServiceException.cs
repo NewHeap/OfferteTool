@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OffertTemplateTool.TemplateSevice
+namespace OffertTemplateTool.TemplateService
 {
     public class TemplateServiceException : Exception
     {

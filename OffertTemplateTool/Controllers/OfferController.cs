@@ -14,7 +14,7 @@ using System.Text.RegularExpressions;
 using OffertTemplateTool.Connectors;
 using Microsoft.AspNetCore.Authorization;
 using DinkToPdf;
-using OffertTemplateTool.TemplateSevice;
+using OffertTemplateTool.TemplateService;
 using Microsoft.AspNetCore.Hosting;
 using DinkToPdf.Contracts;
 
@@ -143,7 +143,8 @@ namespace OffertTemplateTool.Controllers
                     CreatedAt = DateTime.Now,
                     LastUpdatedAt = DateTime.Now,
                     UpdatedBy = user,
-                    DocumentCode = "PV" + code
+                    DocumentCode = "PV" + code,
+                    DocumentVersion = 1
                 };
 
                 await OfferRepository.AddAsync(offerte);
@@ -359,9 +360,14 @@ namespace OffertTemplateTool.Controllers
 
         public async Task<IActionResult> ExportOffer(Guid Id, string template)
         {
+            var offerrender = new OfferRenderViewModel();
             var offer = await OfferRepository.FindAsync(Id);
-            var viewmodelrender = await FillViewModel(Id);
-            string documentcontent = await TemplateService.RenderTemplateAsync("Template/" + template, viewmodelrender);
+            var viewmodelrender = await FillViewModel(Id, offerrender);
+            var footercontent = await TemplateService.RenderTemplateAsync("Template/FooterTemplate", new Footer());
+            viewmodelrender.FooterContent = footercontent;
+
+
+            string documentcontent = await TemplateService.RenderTemplateAsync("Template/"+template, viewmodelrender);
             byte[] output = ConverterService.Convert(new HtmlToPdfDocument()
             {
                 Objects = {
@@ -409,7 +415,7 @@ namespace OffertTemplateTool.Controllers
             return Redirect("../");
         }
 
-        public async Task<OfferRenderViewModel> FillViewModel(Guid Id)
+        public async Task<OfferRenderViewModel> FillViewModel(Guid Id, OfferRenderViewModel offerrender)
         {
             ICollection<EstimateConnects> Connect;
             ICollection<Offers> offers;
@@ -432,9 +438,47 @@ namespace OffertTemplateTool.Controllers
             var estimate = await EstimateRepository.FindAsync(dboffer.Estimate.Id);
             var connectlines = Connect.Where(x => x.Estimate.Id.Equals(dboffer.Estimate.Id)).ToList();
 
-            string[] splits = new string[] { "<h1>", "</p>" };
-            List<Match> alineas = Regex.Matches(offer.IndexContent, @"<h1>(.|\n)*?</p>").ToList();
+            List<Match> alineas = Regex.Matches(offer.IndexContent, @"((<h1.*>)([\s\S])+?(?=<h1.*>)|((<h1.*>)([\s\S])+(<\/p>)))").ToList();
+            List<PagesViewModel> pages = new List<PagesViewModel>();
 
+            int pagenumber = 4;
+            List<Dictionary<string, int>> indexlist = new List<Dictionary<string, int>>();
+            foreach (var item in alineas)
+            {
+                var indexitem = Regex.Matches(item.ToString(), @"<h1>(.|\n)*?</h1>").ToList();
+                var replaceindexitem = "";
+                foreach (var h1 in indexitem)
+                {
+                    pagenumber++;
+                    replaceindexitem = Regex.Replace(h1.ToString(), @"<[^>]*>", "");
+
+                    if (item.Length >= 3700)
+                    {
+                        pagenumber++;
+                    }
+
+                    var Index = new Dictionary<string, int>
+                    {
+                    {replaceindexitem, pagenumber}
+                    };
+
+                    indexlist.Add(Index);
+                }
+            }
+            indexlist.Add(new Dictionary<string, int> { { "Begroting", pagenumber+1 } });
+            indexlist.Add(new Dictionary<string, int> { { "Voor Akkoord", pagenumber + 2 } });
+
+            float exclbtw = 0;
+            float btw = 0;
+            float totalcost = 0;
+            foreach (var item in connectlines)
+            {
+                exclbtw = exclbtw + item.EstimateLines.TotalCost;
+            }
+            btw = exclbtw / 100 * 21;
+            totalcost = exclbtw + btw;
+
+            #region
             var Page3ViewModel = new Page3ViewModel
             {
                 CustomerZipCode = "7957EJ",
@@ -458,32 +502,10 @@ namespace OffertTemplateTool.Controllers
                 CustomerCountry = "The Netherlands"
             };
 
-            List<string> indexlist = new List<string>();
-            foreach (var item in alineas)
-            {
-                var indexitem = Regex.Matches(item.ToString(), @"<h1>(.|\n)*?</h1>").ToList();
-                var replaceindexitem = "";
-                foreach (var h1 in indexitem)
-                {
-                    replaceindexitem = Regex.Replace(h1.ToString(), @"<[^>]*>", "");
-                }
-                indexlist.Add(replaceindexitem);
-            }
-
             var IndexPage = new IndexPage
             {
                 IndexItems = indexlist
             };
-
-            float exclbtw = 0;
-            float btw = 0;
-            float totalcost = 0;
-            foreach (var item in connectlines)
-            {
-                exclbtw = exclbtw + item.EstimateLines.TotalCost;
-            }
-            btw = exclbtw / 100 * 21;
-            totalcost = exclbtw + btw;
 
             var EstimateTablePage = new EstimateTablePage
             {
@@ -496,17 +518,14 @@ namespace OffertTemplateTool.Controllers
             {
                 Alineas = alineas
             };
+            offerrender.ContentPages = ContentPages;
+            offerrender.EstimateTablePage = EstimateTablePage;
+            offerrender.FrontPage = FrontPageViewModel;
+            offerrender.Page3 = Page3ViewModel;
+            offerrender.IndexPage = IndexPage;
+#endregion
 
-            var OfferRenderViewModel = new OfferRenderViewModel
-            {
-                ContentPages = ContentPages,
-                EstimateTablePage = EstimateTablePage,
-                FrontPage = FrontPageViewModel,
-                Page3 = Page3ViewModel,
-                IndexPage = IndexPage
-            };
-
-            return OfferRenderViewModel;
+            return offerrender;
         }
     }
 }
