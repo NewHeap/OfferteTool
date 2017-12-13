@@ -17,6 +17,7 @@ using DinkToPdf;
 using OffertTemplateTool.TemplateService;
 using Microsoft.AspNetCore.Hosting;
 using DinkToPdf.Contracts;
+using System.Text;
 
 namespace OffertTemplateTool.Controllers
 {
@@ -59,7 +60,7 @@ namespace OffertTemplateTool.Controllers
         }
 
         public async Task<IActionResult> Index()
-        {;
+        {
             if (User.Identity.Name != null)
             {
                 var offertes = await OfferRepository.GetAllAsync();
@@ -359,14 +360,69 @@ namespace OffertTemplateTool.Controllers
 
         public async Task<IActionResult> ExportOffer(Guid Id , string template)
         {
-            var offerrender = new OfferRenderViewModel();
             var offer = await OfferRepository.FindAsync(Id);
-            var viewmodelrender = await FillViewModel(Id, offerrender);
+            HtmlToPdfModel<OfferRenderViewModel> htmltopdfmodel = new HtmlToPdfModel<OfferRenderViewModel>();
             var footercontent = await TemplateService.RenderTemplateAsync("Template/FooterTemplate", new Footer());
-            viewmodelrender.FooterContent = footercontent;
+            htmltopdfmodel.Name = "Offer";
+            htmltopdfmodel.FooterContent = footercontent;
+            htmltopdfmodel.Pages = new List<HtmlToPdfPage>();
+            List<Match> alineas = Regex.Matches(offer.IndexContent, @"((<h1.*>)([\s\S])+?(?=<h1.*>)|((<h1.*>)([\s\S])+(<\/p>)))").ToList();
+            htmltopdfmodel.ViewModel = await FillViewModel(Id, new OfferRenderViewModel());
+            int pagenumbers = 5;
 
+            foreach (var item in alineas)
+            {
+                MatchCollection header = Regex.Matches(item.ToString(), @"(?<=(<h1.*>))(.|\n)*?(?=<\/h1>)");
+                htmltopdfmodel.Pages = PdfExtensions.CheckAlinea(item.ToString(), pagenumbers, htmltopdfmodel.Pages, header);
+                pagenumbers++;
+            }
+            var textpages = htmltopdfmodel.Pages.Count + 5;
 
-            string documentcontent = await TemplateService.RenderTemplateAsync("Template/"+template, viewmodelrender);
+            #region pages
+            htmltopdfmodel.Pages.Add(new HtmlToPdfPage
+            {
+                Header = offer.ProjectName,
+                Body = "",
+                Type = HtmlToPdfPageType.FrontPage,
+                Index = 1
+            });
+
+            htmltopdfmodel.Pages.Add(new HtmlToPdfPage
+            {
+                Header = "Vertrouwelijk",
+                Body = "",
+                Type = HtmlToPdfPageType.Preface,
+                Index = 2
+            });
+
+            htmltopdfmodel.Pages.Add(new HtmlToPdfPage
+            {
+                Header = "",
+                Body = "",
+                Type = HtmlToPdfPageType.PrefaceInfo,
+                Index = 3
+            });
+
+            htmltopdfmodel.Pages.Add(new HtmlToPdfPage {
+                Header = "Begroting",
+                Body = "",
+                Type = HtmlToPdfPageType.Estimate,
+                Index = textpages++
+            });
+
+            htmltopdfmodel.Pages.Add(new HtmlToPdfPage
+            {
+                Header = "Voor Akkoord",
+                Body = "",
+                Type = HtmlToPdfPageType.Agree,
+                Index = textpages++
+            });
+
+            #endregion
+
+            htmltopdfmodel.Pages.Add(PdfExtensions.CreateIndex(htmltopdfmodel.Pages));
+            
+            string documentcontent = await TemplateService.RenderTemplateAsync("Template/"+template, htmltopdfmodel);
             byte[] output = ConverterService.Convert(new HtmlToPdfDocument()
             {
                 Objects = {
@@ -375,6 +431,7 @@ namespace OffertTemplateTool.Controllers
                     }
                 }
             });
+
             Response.Clear();
             Response.ContentType = "Application/pdf";
             Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=Offer_"+offer.ProjectName+ ".pdf;"));
@@ -435,36 +492,6 @@ namespace OffertTemplateTool.Controllers
             var estimate = await EstimateRepository.FindAsync(dboffer.Estimate.Id);
             var connectlines = Connect.Where(x => x.Estimate.Id.Equals(dboffer.Estimate.Id)).ToList();
 
-            List<Match> alineas = Regex.Matches(offer.IndexContent, @"((<h1.*>)([\s\S])+?(?=<h1.*>)|((<h1.*>)([\s\S])+(<\/p>)))").ToList();
-            List<PagesViewModel> pages = new List<PagesViewModel>();
-
-            int pagenumber = 4;
-            List<Dictionary<string, int>> indexlist = new List<Dictionary<string, int>>();
-            foreach (var item in alineas)
-            {
-                var indexitem = Regex.Matches(item.ToString(), @"<h1>(.|\n)*?</h1>").ToList();
-                var replaceindexitem = "";
-                foreach (var h1 in indexitem)
-                {
-                    pagenumber++;
-                    replaceindexitem = Regex.Replace(h1.ToString(), @"<[^>]*>", "");
-
-                    if (item.Length >= 3700)
-                    {
-                        pagenumber++;
-                    }
-
-                    var Index = new Dictionary<string, int>
-                    {
-                    {replaceindexitem, pagenumber}
-                    };
-
-                    indexlist.Add(Index);
-                }
-            }
-            indexlist.Add(new Dictionary<string, int> { { "Begroting", pagenumber+1 } });
-            indexlist.Add(new Dictionary<string, int> { { "Voor Akkoord", pagenumber + 2 } });
-
             float exclbtw = 0;
             float btw = 0;
             float totalcost = 0;
@@ -499,11 +526,6 @@ namespace OffertTemplateTool.Controllers
                 CustomerCountry = "The Netherlands"
             };
 
-            var IndexPage = new IndexPage
-            {
-                IndexItems = indexlist
-            };
-
             var EstimateTablePage = new EstimateTablePage
             {
                 EstimateConnects = connectlines,
@@ -511,18 +533,79 @@ namespace OffertTemplateTool.Controllers
                 ExclBtw = exclbtw.ToString("#,##0.00"),
                 Totaal = totalcost.ToString("#,##0.00")
             };
-            var ContentPages = new ContentPages
-            {
-                Alineas = alineas
-            };
-            offerrender.ContentPages = ContentPages;
             offerrender.EstimateTablePage = EstimateTablePage;
             offerrender.FrontPage = FrontPageViewModel;
             offerrender.Page3 = Page3ViewModel;
-            offerrender.IndexPage = IndexPage;
+            
 #endregion
 
             return offerrender;
+        }
+    }
+
+    public static class PdfExtensions
+    {
+        public static HtmlToPdfPage CreateIndex(IList<HtmlToPdfPage> pages)
+        {
+            var page = new HtmlToPdfPage();
+            page.Type = HtmlToPdfPageType.Index;
+            page.Header = "Index";
+
+            var sb = new StringBuilder();
+
+            sb.Append("<div class='index'>");
+            var copy = "";
+            foreach (var item in pages.Where(x => x.Type != HtmlToPdfPageType.FrontPage && !string.IsNullOrEmpty(x.Header)).OrderBy(x => x.Index))
+            {
+                if (copy != item.Header)
+                {
+                    sb.Append($"<span class='left'>{item.Header}</span>");
+                    sb.AppendLine($"<span class='right'>{item.Index}</span></br>");
+                }
+                copy = item.Header;
+            }
+            sb.Append("<div style='clear:both'></div>");
+            sb.Append("</div>");
+            page.Body = sb.ToString();
+
+            return page;
+        }
+        public static IList<HtmlToPdfPage> CheckAlinea(string alinea, int pagenumbers, IList<HtmlToPdfPage> pages, MatchCollection header)
+        {
+            HtmlToPdfPage page = null;
+            
+            foreach (var head in header)
+            {
+                if (alinea.Length > 3700)
+                {
+                    var split = alinea.LastIndexOf(".", 3700);
+                    var newpage = alinea.Substring(split+1);
+                    alinea = alinea.Remove(split+1);
+
+                    pages.Add(page = new HtmlToPdfPage
+                    {
+                        Header = head.ToString(),
+                        Body = alinea,
+                        Type = HtmlToPdfPageType.Text,
+                        Index = pagenumbers,
+                    });
+
+                    pagenumbers = pagenumbers + 1;
+                    CheckAlinea(newpage, pagenumbers, pages, header); 
+                }
+                else
+                {
+                    pages.Add(page = new HtmlToPdfPage
+                    {
+                        Header = head.ToString(),
+                        Body = alinea,
+                        Type = HtmlToPdfPageType.Text,
+                        Index = pagenumbers,
+                    });
+                    pagenumbers = pagenumbers + 1;
+                }
+            }
+            return pages;
         }
     }
 }

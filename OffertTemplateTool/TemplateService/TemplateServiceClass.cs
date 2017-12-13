@@ -56,7 +56,6 @@ namespace OffertTemplateTool.TemplateService
                 await ViewResult.View.RenderAsync(ViewContext);
                 return outputWriter.ToString();
             }
-
         }
     }
 }

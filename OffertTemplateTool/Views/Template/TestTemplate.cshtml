@@ -3,12 +3,267 @@
     Layout = null;
     ViewData["Title"] = "TestTemplate";
 }
+<!DOCTYPE html>
 
-<h2>TestTemplate</h2>
-
-<div>
-    @foreach (var item in Model.EstimateTablePage.EstimateLines)
-    {
-        <div style="float: right; position:absolute !important;">@item.Specification</div>
+<meta charset="utf-8">
+<title>Template</title>
+<style>
+    * {
+        font-family: calibri !important;
+        font-size: 20px !important;
     }
-</div>
+
+    .pagebreak {
+        page-break-after: always;
+        position: relative;
+        height: 12in;
+        padding-bottom: 2in;
+    }
+
+    .footer {
+        bottom: 0px;
+        width: 100%;
+        margin-left: 5%;
+        position: absolute;
+        /*page-break-before: auto !important;*/
+    }
+
+    .content-alinea {
+        height: 11in;
+        word-wrap: break-word;
+    }
+
+    .footer-block {
+        height: 3in;
+    }
+
+    .footer tr td img {
+        height: 30px;
+        vertical-align: middle;
+        margin-right: 5%;
+    }
+
+    #formulier tr {
+        height: 40px;
+    }
+
+    h1 {
+        color: #e84f1e;
+        font-size: 32px !important;
+    }
+
+    p {
+        margin: 0;
+    }
+
+    dd {
+        margin: 1%;
+        margin-left: 17%;
+    }
+
+    .estimate-table {
+        width: 100%;
+    }
+
+    .index {
+        width: 95%;
+        margin: 15px;
+    }
+
+    .left {
+        float: left;
+    }
+
+    .right {
+        float: right;
+    }
+</style>
+
+
+@foreach (HtmlToPdfPage item in Model.GetPages(HtmlToPdfPageType.FrontPage))
+{
+    <div class="pagebreak">
+        <p><b>@Model.ViewModel.FrontPage.CustomerCompany</b></p>
+        <p> t.a.v. de heer @Model.ViewModel.FrontPage.CustomerName</p>
+        <p>@Model.ViewModel.FrontPage.CustomerStreet</p>
+        <p>@Model.ViewModel.FrontPage.CustomerZipCode</p>
+        <p>@Model.ViewModel.FrontPage.CustomerCountry</p>
+        <img src="./images/NewHeap.png" alt="NewHeap" style="width:100%; margin-top:10%">
+        <h1>@Html.Raw(item.Header)</h1>
+        <h1>Projectvoorstel</h1>
+        <table style="width:50%">
+            <tr>
+                <td><b>Datum laatste wijziging:<b></td>
+                <td>@Model.ViewModel.FrontPage.LastUpdated</td>
+            </tr>
+            <tr>
+                <td><b>Documentidentificatie:</b></td>
+                <td>@Model.ViewModel.FrontPage.DocumentCode</td>
+            </tr>
+            <tr>
+                <td><b>Auteur:</b></td>
+                <td>@Model.ViewModel.FrontPage.CreatedBy</td>
+            </tr>
+        </table>
+        @Html.Raw(Model.FooterContent)
+    </div>
+}
+
+@foreach (HtmlToPdfPage item in Model.GetPages(HtmlToPdfPageType.Preface))
+{
+    <div class="pagebreak">
+        <h1>@Html.Raw(item.Header)</h1>
+        <p>
+            [2017] NewHeap B.V. : Alle rechten voorbehouden. <br />
+            Alle informatie in dit document is, en blijft, eigendom van NewHeap B.V. en, als deze er zijn, zijn leveranciers.<br />
+            Dit document is bedoeld voor Klant B.V. en dient niet zonder toestemming verspreidt te worden.
+        </p>
+    </div>
+}
+@foreach (HtmlToPdfPage item in Model.GetPages(HtmlToPdfPageType.PrefaceInfo))
+{
+    <div class="pagebreak">
+        <dl>
+            <dt><b>Betreft:</b></dt>
+            <dd>Projectvoorstel realisatie <ProjectName></dd>
+            <br />
+            <dt><b>Relatie:</b></dt>
+            <dd>@Model.ViewModel.FrontPage.CustomerCompany</dd>
+            <dd>@Model.ViewModel.FrontPage.CustomerName</dd>
+            <dd>@Model.ViewModel.FrontPage.CustomerStreet</dd>
+            <dd>@Model.ViewModel.FrontPage.CustomerZipCode</dd>
+            <dd>< EmailCustomer></dd>
+            <br />
+            <dt><b>Uitvoering:</b></dt>
+            <dd>NewHeap B.V.</dd>
+            <dd>Eekwal 1</dd>
+            <dd>8011 LA  ZWOLLE</dd>
+            <dd>info@newheap.com</dd>
+            <dd>www.newheap.com</dd>
+            <dd>KVK : 65649176</dd>
+            <dd>IBAN: NL92 ABNA 0513 6989 73</dd>
+            <dd>Te naamstelling van: NewHeap B.V.</dd>
+            <dd>BTW: NL8562.02.617.B01</dd>
+            <br />
+            <dt><b>Contactpersoon:</b></dt>
+            <dd>Lars van en Bosch</dd>
+            <dd>E-mail: lars@newheap.com</dd>
+            <dd>Tel: (0031)(0)522200022</dd>
+            <br />
+            <dt><b>Voorwaarden:</b></dt>
+            <dd>Algemene voorwaarden NewHeap B.V.</dd>
+            <dd>Nederland ICT Voorwaarden 2014 (los meegeleverd)</dd>
+            <dd>Documentversie	:	001</dd>
+        </dl>
+    </div>
+}
+@foreach (HtmlToPdfPage item in Model.GetPages(HtmlToPdfPageType.Index))
+{
+    <div class="pagebreak">
+        <h1>@item.Header</h1>
+        @Html.Raw(item.Body)
+    </div>
+}
+
+@foreach (HtmlToPdfPage item in Model.GetPages(HtmlToPdfPageType.Text))
+{
+    <div class="pagebreak">
+        @Html.Raw(item.Body)
+        @Html.Raw(Model.FooterContent)
+    </div>
+}
+@foreach (HtmlToPdfPage item in Model.GetPages(HtmlToPdfPageType.Estimate))
+{
+    <div class="pagebreak">
+        <h1>@item.Header</h1>
+        <table class="estimate-table">
+            <tr>
+                <td style="width:500px;"><b>Omschrijving</b></td>
+                <td><b>Aantal uren</b></td>
+                <td><b>Kosten per uur</b></td>
+                <td><b>Totale kosten</b></td>
+            </tr>
+            @foreach (var line in Model.ViewModel.EstimateTablePage.EstimateConnects)
+            {
+                <tr>
+                    <td>@line.EstimateLines.Specification</td>
+                    <td>@line.EstimateLines.Hours</td>
+                    <td>@line.EstimateLines.HourCost.ToString("#,##0.00")</td>
+                    <td>@line.EstimateLines.TotalCost.ToString("#,##0.00")</td>
+                </tr>
+            }
+            <tr>
+                <td colspan="3"></td>
+                <td style="border-top:1px solid black;">@Model.ViewModel.EstimateTablePage.ExclBtw</td>
+            </tr>
+            <tr>
+                <td colspan="3"></td>
+                <td>@Model.ViewModel.EstimateTablePage.BTW</td>
+            </tr>
+            <tr>
+                <td colspan="3"></td>
+                <td style="border-top:1px solid black;">@Model.ViewModel.EstimateTablePage.Totaal</td>
+            </tr>
+        </table>
+        @Html.Raw(Model.FooterContent)
+    </div>
+}
+@foreach (HtmlToPdfPage item in Model.GetPages(HtmlToPdfPageType.Agree))
+{
+    <div>
+        <h1>@item.Header</h1>
+        <p>
+            Indien U akkoord gaat met de inhoud van dit projectvoorstel betreft de realisatie van uw project fase 1, verzoeken wij u vriendelijk dit document getekend te retourneren. De ondertekening van dit document geld als opdrachtbevestiging en geld als overeenkomst tussen opdrachtgever en opdrachtnemer.<br /><br />
+
+            Mocht u naar aanleiding van dit document nog vragen en/of opmerkingen hebben, dan kunt u ten alle tijden contact met ons opnemen.<br /><br />
+
+            Ondertekende van dit contract gaat akkoord met de aspecten die in deze offerte benoemd zijn, de Nederland ICT  Voorwaarden 2014 en de algemene voorwaarden van NewHeap B.V.<br /><br />
+
+            <b>
+                Werkzaamheden buiten deze offerte worden vooraf aan u geoffreerd.<br /><br />
+                <del>40% van het totaalbedrag, op hiervoor aangegeven begroting vermeld, dient aanbetaald te worden.</del><br /><br />
+                Het <del>resterende</del> totaalbedrag, op hiervoor aangegeven begroting vermeld, dient na oplevering van de applicatie betaald te worden.<br /><br />
+                Wij hanteren een betalingstermijn van 31 dagen voor onze facturen.
+            </b> <br /><br /><br />
+        </p>
+        <table id="formulier" style="width:100%">
+            <tr>
+                <th>Opdrachtnemer:</th>
+                <th></th>
+                <th></th>
+                <th>Opdrachtgever:</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="2"><img src="./images/Handtekening.png" alt="Handtekening" style="width:40%;"></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Naam:</td>
+                <td>L.E. van den Bosch</td>
+                <td>Naam:</td>
+                <td>…………………………………………….</td>
+            </tr>
+            <tr>
+                <td>Plaats:</td>
+                <td>Meppel</td>
+                <td>Plaats:</td>
+                <td>…………………………………………….</td>
+            </tr>
+            <tr>
+                <td>Functie:</td>
+                <td>Directeur</td>
+                <td>Functie:</td>
+                <td>…………………………………………….</td>
+            </tr>
+            <tr>
+                <td>Datum:</td>
+                <td>28 november 2017</td>
+                <td>Datum:</td>
+                <td>…………………………………………….</td>
+            </tr>
+        </table>
+    </div>
+}

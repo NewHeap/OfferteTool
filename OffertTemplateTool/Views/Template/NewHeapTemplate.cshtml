@@ -6,14 +6,15 @@
 <!doctype html>
 <style>
     * {
-        font-family: calibri;
+        font-family: calibri !important;
         font-size: 20px !important; 
     }
      .pagebreak {
         page-break-after: always;
         position: relative;
-        height: 14in;
-        /*height: 400px;*/
+        height: 12in;
+        padding-bottom:2in;
+
     }
 
     .footer {
@@ -22,6 +23,13 @@
         margin-left: 5%;
         position: absolute;
         /*page-break-before: auto !important;*/
+    }
+    .content-alinea {
+        height: 11in;
+        word-wrap: break-word;
+    }
+    .footer-block{
+        height: 3in;
     }
 
     .footer tr td img {
@@ -145,12 +153,13 @@
     
     @Html.Raw(Model.FooterContent)
 </div>
-@foreach (var item in Model.ContentPages.Alineas)
+@foreach (HtmlToPdfPage page in Model.GetPages(HtmlToPdfPageType.Text))
 {
     <div class="pagebreak">
-        @Html.Raw(item)
+        @Html.Raw(page.Body)
         @Html.Raw(Model.FooterContent)
     </div>
+    
 }
 <div class="pagebreak">
     <h1>Begroting</h1>
@@ -187,7 +196,7 @@
 </div>
 <div style="height: 14in;">
     <h1>Voor akkoord</h1>
-    <p>
+    <p>0
         Indien U akkoord gaat met de inhoud van dit projectvoorstel betreft de realisatie van uw project fase 1, verzoeken wij u vriendelijk dit document getekend te retourneren. De ondertekening van dit document geld als opdrachtbevestiging en geld als overeenkomst tussen opdrachtgever en opdrachtnemer.<br /><br />
         Mocht u naar aanleiding van dit document nog vragen en/of opmerkingen hebben, dan kunt u ten alle tijden contact met ons opnemen.<br /><br />
         Ondertekende van dit contract gaat akkoord met de aspecten die in deze offerte benoemd zijn, de Nederland ICT  Voorwaarden 2014 en de algemene voorwaarden van NewHeap B.V.<br /><br />
