@@ -6,7 +6,7 @@
     List<SettingsViewModel> query = (List<SettingsViewModel>)ViewData["settings"];
     int id = 0;
 }
-<div class="modal fade" id="myModal" role="dialog">
+<div class="modal fade" id="myModal" role="dialog" onload="dataKijk()">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
@@ -68,7 +68,11 @@
 </div>
 
 <script type="text/javascript">
+    function dataKijk()
+    {
 
+
+    }
    //edit get info
     var guid;
         var exportid = "";
@@ -87,7 +91,7 @@
 
             $.ajax({
                 type: "GET",
-                url: '@Url.Action("getSetting", "Settings")',
+                url: '@Url.Action("GetSetting", "Settings")',
                 data: postdata,
                 complete: function (response, xhr, status) {
                     var json = JSON.parse(response.responseText);

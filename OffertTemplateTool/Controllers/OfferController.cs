@@ -34,11 +34,11 @@ namespace OffertTemplateTool.Controllers
         protected readonly IHostingEnvironment Environment;
         protected readonly IConverter ConverterService;
 
-        public OfferController(IRepository<Offers> offerrepository, 
+        public OfferController(IRepository<Offers> offerrepository,
             IRepository<Users> userrepository,
             IRepository<Offers> offerrepoitory,
             IRepository<Estimates> estimaterepository,
-            IRepository<EstimateLines> estimatlinesrepository, 
+            IRepository<EstimateLines> estimatlinesrepository,
             IRepository<EstimateConnects> estimateconnectsrepository,
             IRepository<Settings> settingsrepository,
             IConnector wefactConnector,
@@ -59,7 +59,8 @@ namespace OffertTemplateTool.Controllers
         }
 
         public async Task<IActionResult> Index()
-        {;
+        {
+            ;
             if (User.Identity.Name != null)
             {
                 var offertes = await OfferRepository.GetAllAsync();
@@ -214,7 +215,7 @@ namespace OffertTemplateTool.Controllers
             {
                 ICollection<EstimateConnects> Connect;
                 ICollection<Offers> offers;
-                
+
 
                 using (var context = new DataBaseContext())
                 {
@@ -279,7 +280,7 @@ namespace OffertTemplateTool.Controllers
                 offer.LastUpdatedAt = DateTime.Now;
                 offer.UpdatedBy = user;
                 offer.ProjectName = model.ProjectName;
-                offer.DocumentVersion = offer.DocumentVersion+1;
+                offer.DocumentVersion = offer.DocumentVersion + 1;
                 //offer.DebtorNumber = model.DebtorNumber;
 
                 await OfferRepository.SaveChangesAsync();
@@ -316,7 +317,7 @@ namespace OffertTemplateTool.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditOffer(System.Guid Id)
+        public async Task<IActionResult> EditOffer(Guid Id)
         {
             ICollection<Offers> offers;
             ICollection<EstimateConnects> Connect;
@@ -356,11 +357,11 @@ namespace OffertTemplateTool.Controllers
             return View(offerte);
         }
 
-        public async Task<IActionResult> ExportOffer(Guid Id , string template)
+        public async Task<IActionResult> ExportOffer(Guid Id, string template)
         {
             var offer = await OfferRepository.FindAsync(Id);
             var viewmodelrender = await FillViewModel(Id);
-            string documentcontent = await TemplateService.RenderTemplateAsync("Template/"+template, viewmodelrender);
+            string documentcontent = await TemplateService.RenderTemplateAsync("Template/" + template, viewmodelrender);
             byte[] output = ConverterService.Convert(new HtmlToPdfDocument()
             {
                 Objects = {
@@ -370,9 +371,11 @@ namespace OffertTemplateTool.Controllers
                 }
             });
             Response.Clear();
+            offer.IsOpen = 1;
             Response.ContentType = "Application/pdf";
-            Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=Offer_"+offer.ProjectName+ ".pdf;"));
+            Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=Offer_" + offer.ProjectName + ".pdf;"));
             Response.Headers.Add("Content-Length", output.Length.ToString());
+            await OfferRepository.SaveChangesAsync();
             await Response.Body.WriteAsync(output, 0, output.Length);
             return Redirect(nameof(Index));
         }
