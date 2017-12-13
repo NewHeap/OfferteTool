@@ -1,24 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using OffertTemplateTool.DAL.Context;
+using OffertTemplateTool.Connectors;
 using OffertTemplateTool.DAL.Models;
+using OffertTemplateTool.DAL.Context;
+using OffertTemplateTool.TemplateService;
 using OffertTemplateTool.DAL.Repositories;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OffertTemplateTool.Connectors;
-using DinkToPdf.Contracts;
 using DinkToPdf;
-using OffertTemplateTool.TemplateService;
+using DinkToPdf.Contracts;
 
 namespace OffertTemplateTool
 {
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -57,7 +57,7 @@ namespace OffertTemplateTool
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider services)
         {
             if (env.IsDevelopment())
             {
@@ -79,6 +79,26 @@ namespace OffertTemplateTool
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            SeedDatabase(services).Wait();
+        }
+
+        public async Task SeedDatabase(IServiceProvider services)
+        {
+            using (var scope = services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var repositoryx = scope.ServiceProvider.GetRequiredService<IRepository<Settings>>();
+                // hier je zaad code
+                if (!repositoryx.GetAll().Any())
+                {
+                    var newReg = new Settings()
+                    {
+                        Key = "DocumentCode",
+                        Value = "0"
+                    };
+                    repositoryx.Add(newReg);
+                    await repositoryx.SaveChangesAsync();
+                };
+            }
         }
     }
 }

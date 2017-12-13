@@ -65,7 +65,7 @@ namespace OffertTemplateTool.Controllers
             return View();
         }
         
-        public async Task<Settings> getSetting(Guid id)
+        public async Task<Settings> GetSetting(Guid id)
         {
             return await SettingsRepository.FindAsync(id);
         }
