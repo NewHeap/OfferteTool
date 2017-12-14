@@ -373,7 +373,9 @@ namespace OffertTemplateTool.Controllers
             foreach (var item in alineas)
             {
                 MatchCollection header = Regex.Matches(item.ToString(), @"(?<=(<h1.*>))(.|\n)*?(?=<\/h1>)");
-                htmltopdfmodel.Pages = PdfExtensions.CheckAlinea(item.ToString(), pagenumbers, htmltopdfmodel.Pages, header);
+                var newalinea = Regex.Replace(item.ToString(), @"((<h1.*>))(.|\n)*?(\/h1>)", "");
+
+                htmltopdfmodel.Pages = PdfExtensions.CheckAlinea(newalinea, pagenumbers, htmltopdfmodel.Pages, header);
                 pagenumbers++;
             }
             var textpages = htmltopdfmodel.Pages.Count + 5;
@@ -384,7 +386,7 @@ namespace OffertTemplateTool.Controllers
                 Header = offer.ProjectName,
                 Body = "",
                 Type = HtmlToPdfPageType.FrontPage,
-                Index = 1
+                Index = 1,
             });
 
             htmltopdfmodel.Pages.Add(new HtmlToPdfPage
@@ -433,9 +435,11 @@ namespace OffertTemplateTool.Controllers
             });
 
             Response.Clear();
+            offer.IsOpen = 1;
             Response.ContentType = "Application/pdf";
             Response.Headers.Add("Content-Disposition", string.Format("Attachment;FileName=Offer_"+offer.ProjectName+ ".pdf;"));
             Response.Headers.Add("Content-Length", output.Length.ToString());
+            await OfferRepository.SaveChangesAsync();
             await Response.Body.WriteAsync(output, 0, output.Length);
             return Redirect(nameof(Index));
         }
@@ -553,19 +557,20 @@ namespace OffertTemplateTool.Controllers
 
             var sb = new StringBuilder();
 
-            sb.Append("<div class='index'>");
+            sb.Append("<table class='index'>");
             var copy = "";
             foreach (var item in pages.Where(x => x.Type != HtmlToPdfPageType.FrontPage && !string.IsNullOrEmpty(x.Header)).OrderBy(x => x.Index))
             {
                 if (copy != item.Header)
                 {
-                    sb.Append($"<span class='left'>{item.Header}</span>");
-                    sb.AppendLine($"<span class='right'>{item.Index}</span></br>");
+                    sb.Append($"<tr class='clickrow'>");
+                    sb.Append($"<td style='width:90%;'><a href='#{item.Index}'>{item.Header}</a></td>");
+                    sb.AppendLine($"<td><a href='#{item.Index}'>{item.Index}</a></td>");
+                    sb.Append($"</tr>");
                 }
                 copy = item.Header;
             }
-            sb.Append("<div style='clear:both'></div>");
-            sb.Append("</div>");
+            sb.Append("</table>");
             page.Body = sb.ToString();
 
             return page;
