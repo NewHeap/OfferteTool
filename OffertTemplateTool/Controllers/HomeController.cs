@@ -85,7 +85,7 @@ namespace OffertTemplateTool.Controllers
 
         public IActionResult DeleteTemplate(string filename)
         {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "Views/Template/" + filename + ".docx");
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "Views/Template/" + filename + ".cshtml");
             if (System.IO.File.Exists(path))
             {
                 System.IO.File.Delete(path);

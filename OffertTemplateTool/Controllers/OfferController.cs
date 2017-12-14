@@ -596,7 +596,8 @@ namespace OffertTemplateTool.Controllers
                     });
 
                     pagenumbers = pagenumbers + 1;
-                    CheckAlinea(newpage, pagenumbers, pages, header); 
+                    var fakeheader = Regex.Matches("", "");
+                    CheckAlinea(newpage, pagenumbers, pages, fakeheader); 
                 }
                 else
                 {
